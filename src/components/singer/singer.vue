@@ -41,7 +41,7 @@
       _getSingerList() {
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
-            this.singers = this._normalizeSinger(res.data.list)
+            this.singers = this._normalizeSinger(res.artists)
           }
         })
       },
@@ -53,25 +53,23 @@
           }
         }
         list.forEach((item, index) => {
+          const singer = new Singer({
+            name: item.name,
+            id: String(item.id),
+            avatar: item.picUrl
+          })
           if (index < HOT_SINGER_LEN) {
-            map.hot.items.push(new Singer({
-              name: item.Fsinger_name,
-              id: item.Fsinger_mid
-            }))
+            map.hot.items.push(singer)
           }
-          const key = item.Findex
+          const key = this._getIndex(item.name)
           if (!map[key]) {
             map[key] = {
               title: key,
               items: []
             }
           }
-          map[key].items.push(new Singer({
-            name: item.Fsinger_name,
-            id: item.Fsinger_mid
-          }))
+          map[key].items.push(singer)
         })
-        // 为了得到有序列表，我们需要处理 map
         let ret = []
         let hot = []
         for (let key in map) {
@@ -86,6 +84,13 @@
           return a.title.charCodeAt(0) - b.title.charCodeAt(0)
         })
         return hot.concat(ret)
+      },
+      _getIndex(name) {
+        const first = ((name || '').trim().charAt(0) || '').toUpperCase()
+        if (/[A-Z]/.test(first)) {
+          return first
+        }
+        return HOT_NAME
       },
       ...mapMutations({
         setSinger: 'SET_SINGER'

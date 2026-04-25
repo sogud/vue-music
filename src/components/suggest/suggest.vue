@@ -8,12 +8,12 @@
           @beforeScroll="listScroll"
   >
     <ul class="suggest-list">
-      <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
+      <li @click="selectItem(item)" class="suggest-item" v-for="item in result" :key="item.id">
         <div class="icon">
-          <i :class="getIconCls(item)"></i>
+          <i class="icon-music"></i>
         </div>
         <div class="name">
-          <p class="text" v-html="getDisplayName(item)"></p>
+          <p class="text" v-html="`${item.name}-${item.singer}`"></p>
         </div>
       </li>
       <loading v-show="hasMore" title=""></loading>
@@ -24,25 +24,19 @@
   </scroll>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
   import NoResult from 'base/no-result/no-result'
   import {search} from 'api/search'
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
-  import {mapMutations, mapActions} from 'vuex'
-  import Singer from 'common/js/singer'
+  import {mapActions} from 'vuex'
 
-  const TYPE_SINGER = 'singer'
   const perpage = 20
 
   export default {
     props: {
-      showSinger: {
-        type: Boolean,
-        default: true
-      },
       query: {
         type: String,
         default: ''
@@ -54,7 +48,8 @@
         pullup: true,
         beforeScroll: true,
         hasMore: true,
-        result: []
+        result: [],
+        total: 0
       }
     },
     methods: {
@@ -64,11 +59,13 @@
       search() {
         this.page = 1
         this.hasMore = true
+        this.total = 0
         this.$refs.suggest.scrollTo(0, 0)
-        search(this.query, this.page, this.showSinger, perpage).then((res) => {
+        search(this.query, this.page, perpage).then((res) => {
           if (res.code === ERR_OK) {
-            this.result = this._genResult(res.data)
-            this._checkMore(res.data)
+            this.result = res.songs.map((item) => createSong(item))
+            this.total = res.total
+            this._checkMore()
           }
         })
       },
@@ -77,10 +74,11 @@
           return
         }
         this.page++
-        search(this.query, this.page, this.showSinger, perpage).then((res) => {
+        search(this.query, this.page, perpage).then((res) => {
           if (res.code === ERR_OK) {
-            this.result = this.result.concat(this._genResult(res.data))
-            this._checkMore(res.data)
+            this.result = this.result.concat(res.songs.map((item) => createSong(item)))
+            this.total = res.total
+            this._checkMore()
           }
         })
       },
@@ -88,69 +86,24 @@
         this.$emit('listScroll')
       },
       selectItem(item) {
-        if (item.type === TYPE_SINGER) {
-          const singer = new Singer({
-            id: item.singermid,
-            name: item.singername
-          })
-          this.$router.push({
-            path: `/search/${singer.id}`
-          })
-          this.setSinger(singer)
-        } else {
-          this.insertSong(item)
-        }
+        this.insertSong(item)
         this.$emit('select', item)
       },
-      getDisplayName(item) {
-        if (item.type === TYPE_SINGER) {
-          return item.singername
-        } else {
-          return `${item.name}-${item.singer}`
-        }
+      _checkMore() {
+        this.hasMore = this.result.length < this.total
       },
-      getIconCls(item) {
-        if (item.type === TYPE_SINGER) {
-          return 'icon-mine'
-        } else {
-          return 'icon-music'
-        }
-      },
-      _genResult(data) {
-        let ret = []
-        if (data.zhida && data.zhida.singerid) {
-          ret.push({...data.zhida, ...{type: TYPE_SINGER}})
-        }
-        if (data.song) {
-          ret = ret.concat(this._normalizeSongs(data.song.list))
-        }
-        return ret
-      },
-      _normalizeSongs(list) {
-        let ret = []
-        list.forEach((musicData) => {
-          if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
-          }
-        })
-        return ret
-      },
-      _checkMore(data) {
-        const song = data.song
-        if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
-          this.hasMore = false
-        }
-      },
-      ...mapMutations({
-        setSinger: 'SET_SINGER'
-      }),
       ...mapActions([
         'insertSong'
       ])
     },
     watch: {
       query(newQuery) {
-        this.search(newQuery)
+        if (newQuery) {
+          this.search()
+        } else {
+          this.result = []
+          this.hasMore = false
+        }
       }
     },
     components: {

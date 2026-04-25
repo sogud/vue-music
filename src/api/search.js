@@ -1,38 +1,32 @@
-import jsonp from 'common/js/jsonp'
-import {commonParams, options} from './config'
+import axios from 'axios'
 
 export function getHotKey() {
-  const url = 'https://c.y.qq.com/splcloud/fcgi-bin/gethotkey.fcg'
-
-  const data = Object.assign({}, commonParams, {
-    uin: 0,
-    needNewCode: 1,
-    platform: 'h5'
+  return axios.get('/api/search/hot').then((res) => {
+    const hots = (((res.data || {}).result) || {}).hots || []
+    return Promise.resolve({
+      code: 200,
+      hots: hots.map((item) => item.first)
+    })
   })
-
-  return jsonp(url, data, options)
 }
 
-export function search(query, page, zhida, perpage) {
-  const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
-
-  const data = Object.assign({}, commonParams, {
-    w: query,
-    p: page,
-    perpage,
-    n: perpage,
-    catZhida: zhida ? 1 : 0,
-    zhidaqu: 1,
-    t: 0,
-    flag: 1,
-    ie: 'utf-8',
-    sem: 1,
-    aggr: 0,
-    remoteplace: 'txt.mqq.all',
-    uin: 0,
-    needNewCode: 1,
-    platform: 'h5'
+export function search(query, page, perpage) {
+  const offset = (page - 1) * perpage
+  return axios.get('/api/cloudsearch', {
+    params: {
+      keywords: query,
+      limit: perpage,
+      offset,
+      type: 1
+    }
+  }).then((res) => {
+    const result = res.data.result || {}
+    return Promise.resolve({
+      code: 200,
+      songs: result.songs || [],
+      total: result.songCount || 0,
+      page,
+      perpage
+    })
   })
-
-  return jsonp(url, data, options)
 }

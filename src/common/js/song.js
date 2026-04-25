@@ -1,6 +1,5 @@
 import {getLyric} from 'api/song'
 import {ERR_OK} from 'api/config'
-import {Base64} from 'js-base64'
 
 export default class Song {
   constructor({id, mid, singer, name, album, duration, image, url}) {
@@ -20,9 +19,9 @@ export default class Song {
     }
 
     return new Promise((resolve, reject) => {
-      getLyric(this.mid).then((res) => {
-        if (res.retcode === ERR_OK) {
-          this.lyric = Base64.decode(res.lyric)
+      getLyric(this.id).then((res) => {
+        if (res.code === ERR_OK && res.lyric) {
+          this.lyric = res.lyric
           resolve(this.lyric)
         } else {
           reject('no lyric')
@@ -32,27 +31,15 @@ export default class Song {
   }
 }
 
-export function createSong(musicData) {
+export function createSong(track) {
   return new Song({
-    id: musicData.songid,
-    mid: musicData.songmid,
-    singer: filterSinger(musicData.singer),
-    name: musicData.songname,
-    album: musicData.albumname,
-    duration: musicData.interval,
-    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: `http://ws.stream.qqmusic.qq.com/${musicData.songid}.m4a?fromtag=46`
+    id: track.id,
+    mid: String(track.id),
+    singer: (track.ar || []).map((item) => item.name).join('/'),
+    name: track.name,
+    album: track.al ? track.al.name : '',
+    duration: Math.floor((track.dt || 0) / 1000),
+    image: track.al ? track.al.picUrl : '',
+    url: `https://music.163.com/song/media/outer/url?id=${track.id}.mp3`
   })
 }
-
-function filterSinger(singer) {
-  let ret = []
-  if (!singer) {
-    return ''
-  }
-  singer.forEach((s) => {
-    ret.push(s.name)
-  })
-  return ret.join('/')
-}
-

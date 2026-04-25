@@ -9,18 +9,23 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
-  import MHeader from 'components/m-header/m-header'
-  import Player from 'components/player/player'
-  import Tab from 'components/tab/tab'
+<script>
+import {defineComponent} from 'vue'
+import MHeader from 'components/m-header/m-header'
+import Player from 'components/player/player'
+import Tab from 'components/tab/tab'
 
-  export default {
-    components: {
-      MHeader,
-      Tab,
-      Player
-    }
+export default defineComponent({
+  name: 'AppRoot',
+  components: {
+    MHeader,
+    Tab,
+    Player
+  },
+  setup() {
+    return {}
   }
+})
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

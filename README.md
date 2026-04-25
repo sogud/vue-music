@@ -1,162 +1,40 @@
 # vue-music
 
-> Vue.js 打造高级实战——音乐 App
+> 全重构版本：Vue 3.5 + Electron + NeteaseCloudMusicApi
 
-## 项目树
+## 技术栈
 
-```
-.
-├── README.md
-├── build
-│   ├── build.js
-│   ├── check-versions.js
-│   ├── dev-client.js
-│   ├── dev-server.js
-│   ├── utils.js
-│   ├── vue-loader.conf.js
-│   ├── webpack.base.conf.js
-│   ├── webpack.dev.conf.js
-│   └── webpack.prod.conf.js
-├── config
-│   ├── dev.env.js
-│   ├── index.js
-│   └── prod.env.js
-├── index.html
-├── package.json
-├── prod.server.js
-├── src
-│   ├── App.vue
-│   ├── api
-│   │   ├── config.js
-│   │   ├── rank.js
-│   │   ├── recommend.js
-│   │   ├── search.js
-│   │   ├── singer.js
-│   │   └── song.js
-│   ├── base
-│   │   ├── confirm
-│   │   │   └── confirm.vue
-│   │   ├── listview
-│   │   │   └── listview.vue
-│   │   ├── loading
-│   │   │   ├── loading.gif
-│   │   │   └── loading.vue
-│   │   ├── no-result
-│   │   │   ├── no-result.vue
-│   │   │   ├── no-result@2x.png
-│   │   │   └── no-result@3x.png
-│   │   ├── progress-bar
-│   │   │   └── progress-bar.vue
-│   │   ├── progress-circle
-│   │   │   └── progress-circle.vue
-│   │   ├── scroll
-│   │   │   └── scroll.vue
-│   │   ├── search-box
-│   │   │   └── search-box.vue
-│   │   ├── search-list
-│   │   │   └── search-list.vue
-│   │   ├── slider
-│   │   │   └── slider.vue
-│   │   ├── song-list
-│   │   │   ├── first@2x.png
-│   │   │   ├── first@3x.png
-│   │   │   ├── second@2x.png
-│   │   │   ├── second@3x.png
-│   │   │   ├── song-list.vue
-│   │   │   ├── third@2x.png
-│   │   │   └── third@3x.png
-│   │   ├── switches
-│   │   │   └── switches.vue
-│   │   └── top-tip
-│   │       └── top-tip.vue
-│   ├── common
-│   │   ├── fonts
-│   │   │   ├── music-icon.eot
-│   │   │   ├── music-icon.svg
-│   │   │   ├── music-icon.ttf
-│   │   │   └── music-icon.woff
-│   │   ├── image
-│   │   │   └── default.png
-│   │   ├── js
-│   │   │   ├── cache.js
-│   │   │   ├── config.js
-│   │   │   ├── dom.js
-│   │   │   ├── jsonp.js
-│   │   │   ├── mixin.js
-│   │   │   ├── singer.js
-│   │   │   ├── song.js
-│   │   │   └── util.js
-│   │   └── stylus
-│   │       ├── base.styl
-│   │       ├── icon.styl
-│   │       ├── index.styl
-│   │       ├── mixin.styl
-│   │       ├── reset.styl
-│   │       └── variable.styl
-│   ├── components
-│   │   ├── add-song
-│   │   │   └── add-song.vue
-│   │   ├── disc
-│   │   │   └── disc.vue
-│   │   ├── m-header
-│   │   │   ├── logo@2x.png
-│   │   │   ├── logo@3x.png
-│   │   │   └── m-header.vue
-│   │   ├── music-list
-│   │   │   └── music-list.vue
-│   │   ├── player
-│   │   │   └── player.vue
-│   │   ├── playlist
-│   │   │   └── playlist.vue
-│   │   ├── rank
-│   │   │   └── rank.vue
-│   │   ├── recommend
-│   │   │   └── recommend.vue
-│   │   ├── search
-│   │   │   └── search.vue
-│   │   ├── singer
-│   │   │   └── singer.vue
-│   │   ├── singer-detail
-│   │   │   └── singer-detail.vue
-│   │   ├── suggest
-│   │   │   └── suggest.vue
-│   │   ├── tab
-│   │   │   └── tab.vue
-│   │   ├── top-list
-│   │   │   └── top-list.vue
-│   │   └── user-center
-│   │       └── user-center.vue
-│   ├── main.js
-│   ├── router
-│   │   └── index.js
-│   └── store
-│       ├── actions.js
-│       ├── getters.js
-│       ├── index.js
-│       ├── mutation-types.js
-│       ├── mutations.js
-│       └── state.js
-└── static
-    ├── 1.png
-    ├── 2.png
-    ├── 3.png
-    ├── 4.png
-    └── 5.png
+- Vue 3.5（Composition API）
+- Vue Router 4
+- Vuex 4
+- Electron + electron-vite
+- NeteaseCloudMusicApi
 
-```
+## 运行前准备
 
-### 安装与运行
+1. 启动 NeteaseCloudMusicApi（默认地址 `http://127.0.0.1:3000`）
+2. 安装依赖
 
-```
-git clone https://github.com/lwwtotod/vue-music.git
-
-cd vue-music
-
+```bash
 npm install
-
-npm run dev //服务端运行 访问 http://localhost:8080
-
-npm run build 项目打包
-
-感兴趣的童鞋可以来个star
 ```
+
+## 开发与构建
+
+```bash
+npm run dev      # Electron 桌面开发
+npm run build    # Electron 构建
+npm run start    # 预览构建结果
+```
+
+## API 说明
+
+- 所有请求统一走 `/api/*`
+- 本项目不再包含 QQ 音乐 API、JSONP、多源切换兼容逻辑
+- 开发代理在 `build/dev-server.js` 中统一转发到 `NETEASE_API_BASE`
+
+## 环境变量
+
+生产环境变量定义在 `config/prod.env.js`：
+
+- `NETEASE_API_BASE`：NeteaseCloudMusicApi 服务地址

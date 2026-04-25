@@ -4,7 +4,7 @@
   </transition>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import MusicList from 'components/music-list/music-list'
   import {getMusicList} from 'api/rank'
   import {ERR_OK} from 'api/config'
@@ -14,13 +14,13 @@
   export default {
     computed: {
       title() {
-        return this.topList.topTitle
+        return this.topList.name
       },
       bgImage() {
         if (this.songs.length) {
           return this.songs[0].image
         }
-        return ''
+        return this.topList.coverImgUrl || ''
       },
       ...mapGetters([
         'topList'
@@ -43,19 +43,9 @@
         }
         getMusicList(this.topList.id).then((res) => {
           if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.songlist)
+            this.songs = res.songs.map((item) => createSong(item))
           }
         })
-      },
-      _normalizeSongs(list) {
-        let ret = []
-        list.forEach((item) => {
-          const musicData = item.data
-          if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
-          }
-        })
-        return ret
       }
     },
     components: {

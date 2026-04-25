@@ -4,9 +4,9 @@
       <div>
         <div v-if="recommends.length" class="slider-wrapper" ref="sliderWrapper">
           <slider>
-            <div v-for="item in recommends">
-              <a :href="item.linkUrl">
-                <img class="needsclick" @load="loadImage" :src="item.picUrl">
+            <div v-for="item in recommends" :key="item.bannerId || item.targetId">
+              <a :href="item.url || '#'">
+                <img class="needsclick" @load="loadImage" :src="item.pic">
               </a>
             </div>
           </slider>
@@ -14,13 +14,13 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li @click="selectItem(item)" v-for="item in discList" class="item">
+            <li @click="selectItem(item)" v-for="item in discList" :key="item.id" class="item">
               <div class="icon">
-                <img width="60" height="60" v-lazy="item.imgurl">
+                <img width="60" height="60" v-lazy="item.coverImgUrl">
               </div>
               <div class="text">
-                <h2 class="name" v-html="item.creator.name"></h2>
-                <p class="desc" v-html="item.dissname"></p>
+                <h2 class="name" v-html="item.creator.nickname"></h2>
+                <p class="desc" v-html="item.name"></p>
               </div>
             </li>
           </ul>
@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import Slider from 'base/slider/slider'
   import Loading from 'base/loading/loading'
   import Scroll from 'base/scroll/scroll'
@@ -53,7 +53,6 @@
     },
     created() {
       this._getRecommend()
-
       this._getDiscList()
     },
     methods: {
@@ -71,21 +70,21 @@
       },
       selectItem(item) {
         this.$router.push({
-          path: `/recommend/${item.dissid}`
+          path: `/recommend/${item.id}`
         })
         this.setDisc(item)
       },
       _getRecommend() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
-            this.recommends = res.data.slider
+            this.recommends = res.banners
           }
         })
       },
       _getDiscList() {
         getDiscList().then((res) => {
           if (res.code === ERR_OK) {
-            this.discList = res.data.list
+            this.discList = res.playlists
           }
         })
       },
