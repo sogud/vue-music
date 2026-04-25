@@ -4,7 +4,7 @@
   </transition>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import MusicList from 'components/music-list/music-list'
   import {getSingerDetail} from 'api/singer'
   import {ERR_OK} from 'api/config'
@@ -39,19 +39,9 @@
         }
         getSingerDetail(this.singer.id).then((res) => {
           if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.data.list)
+            this.songs = res.songs.map((item) => createSong(item))
           }
         })
-      },
-      _normalizeSongs(list) {
-        let ret = []
-        list.forEach((item) => {
-          let {musicData} = item
-          if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
-          }
-        })
-        return ret
       }
     },
     components: {

@@ -9,8 +9,8 @@
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
             <ul>
-              <li @click="addQuery(item.k)" class="item" v-for="item in hotKey">
-                <span>{{item.k}}</span>
+              <li @click="addQuery(item)" class="item" v-for="item in hotKey" :key="item">
+                <span>{{item}}</span>
               </li>
             </ul>
           </div>
@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import SearchBox from 'base/search-box/search-box'
   import SearchList from 'base/search-list/search-list'
   import Scroll from 'base/scroll/scroll'
@@ -76,7 +76,7 @@
       _getHotKey() {
         getHotKey().then((res) => {
           if (res.code === ERR_OK) {
-            this.hotKey = res.data.hotkey.slice(0, 10)
+            this.hotKey = res.hots.slice(0, 10)
           }
         })
       },

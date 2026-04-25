@@ -4,7 +4,7 @@
   </transition>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import MusicList from 'components/music-list/music-list'
   import {getSongList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
@@ -14,10 +14,10 @@
   export default {
     computed: {
       title() {
-        return this.disc.dissname
+        return this.disc.name
       },
       bgImage() {
-        return this.disc.imgurl
+        return this.disc.coverImgUrl
       },
       ...mapGetters([
         'disc'
@@ -33,24 +33,15 @@
     },
     methods: {
       _getSongList() {
-        if (!this.disc.dissid) {
+        if (!this.disc.id) {
           this.$router.push('/recommend')
           return
         }
-        getSongList(this.disc.dissid).then((res) => {
+        getSongList(this.disc.id).then((res) => {
           if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.cdlist[0].songlist)
+            this.songs = res.tracks.map((item) => createSong(item))
           }
         })
-      },
-      _normalizeSongs(list) {
-        let ret = []
-        list.forEach((musicData) => {
-          if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
-          }
-        })
-        return ret
       }
     },
     components: {
