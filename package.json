@@ -1,7 +1,7 @@
 {
   "name": "vue-music",
-  "version": "2.0.0",
-  "description": "音乐播放器（Electron + Vue 3）",
+  "version": "2.1.0",
+  "description": "MuseDesk - 极简音乐工作台（Electron + Vue 3 + TypeScript）",
   "author": "songhao",
   "private": true,
   "main": "out/main/index.js",
@@ -9,25 +9,24 @@
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
     "build": "electron-vite build",
-    "lint": "eslint --ext .js,.vue src"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --ext .js,.ts,.vue src"
   },
   "dependencies": {
     "axios": "^1.8.4",
-    "fastclick": "^1.0.6",
-    "good-storage": "^3.2.0",
-    "lyric-parser": "^1.0.1",
-    "vue": "^3.5.13",
-    "vue-lazyload": "^3.0.0",
-    "vue-router": "^4.5.1",
-    "vuex": "^4.1.0"
+    "better-sqlite3": "^11.7.0",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
+    "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/compiler-sfc": "^3.5.13",
     "electron": "^31.7.7",
     "electron-vite": "^2.3.0",
     "eslint": "^9.25.1",
     "eslint-plugin-vue": "^9.33.0",
+    "typescript": "^5.8.3",
     "vite": "^5.4.19"
   }
 }
