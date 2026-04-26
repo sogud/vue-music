@@ -1,45 +1,69 @@
 <template>
   <aside class="assistant">
-    <h3>AI 助手摘要面板</h3>
-    <p class="status">● 准备完了</p>
+    <h3>{{ t('assistant.title') }}</h3>
+    <p class="status">{{ t('assistant.ready') }}</p>
 
-    <section class="panel card" v-if="analysis">
-      <h4>这首歌的分析</h4>
-      <p class="summary">{{ analysis.summary }}</p>
-      <div class="chips">
-        <span v-for="item in analysis.keywords" :key="item">{{ item }}</span>
+    <!-- Current track mini card -->
+    <section class="panel card" v-if="track">
+      <div class="mini-track">
+        <img v-if="track.coverUrl" :src="track.coverUrl" class="mini-cover" />
+        <div>
+          <div class="mini-title">{{ track.title }}</div>
+          <div class="mini-artist">{{ track.artist }}</div>
+        </div>
       </div>
     </section>
 
-    <section class="panel card">
-      <h4>推荐创作主题</h4>
-      <ul>
-        <li v-for="theme in themes" :key="theme">{{ theme }}</li>
-      </ul>
-    </section>
+    <AnalysisSummaryCard :analysis="analysis" />
 
-    <section class="panel card" v-if="directions.length">
-      <h4>最新创作方向</h4>
-      <p class="direction-title">{{ directions[0].title }}</p>
-      <p>{{ directions[0].concept }}</p>
-    </section>
+    <RecommendedThemeList :themes="analysis?.recommendedThemes ?? []" />
 
-    <section class="panel card" v-if="inspirations.length">
-      <h4>最近灵感</h4>
-      <ul>
-        <li v-for="idea in inspirations.slice(0, 3)" :key="idea.id">{{ idea.note }}</li>
-      </ul>
+    <section v-if="!analysis && !track" class="panel card">
+      <p class="hint">{{ t('assistant.hint') }}</p>
     </section>
   </aside>
 </template>
 
 <script setup lang="ts">
-import type { CreationDirection, Inspiration, SongAnalysis } from '@shared/types'
+import type { Track, SongAnalysis } from '@shared/types'
+import AnalysisSummaryCard from './assistant/AnalysisSummaryCard.vue'
+import RecommendedThemeList from './assistant/RecommendedThemeList.vue'
+import { usePlayerStore } from '../stores/player.store'
+import { useAnalysisStore } from '../stores/analysis.store'
+import { computed } from 'vue'
+import { useI18nText } from '../i18n'
 
-defineProps<{
-  analysis: SongAnalysis | null
-  themes: string[]
-  directions: CreationDirection[]
-  inspirations: Inspiration[]
-}>()
+const playerStore = usePlayerStore()
+const analysisStore = useAnalysisStore()
+const { t } = useI18nText()
+
+const track = computed(() => playerStore.currentTrack)
+const analysis = computed(() => analysisStore.currentAnalysis)
 </script>
+
+<style scoped>
+.mini-track {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.mini-cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.mini-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.mini-artist {
+  color: #746d63;
+  font-size: 12px;
+}
+.hint {
+  color: #a39c8e;
+  font-size: 13px;
+  text-align: center;
+}
+</style>

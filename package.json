@@ -1,8 +1,7 @@
 {
-  "name": "vue-music",
-  "version": "2.1.0",
-  "description": "MuseDesk - 极简音乐工作台（Electron + Vue 3 + TypeScript）",
-  "author": "songhao",
+  "name": "musedesk",
+  "version": "0.1.0",
+  "description": "MuseDesk - 桌面端 AI 音乐灵感工作台（Electron + Vue 3 + TypeScript）",
   "private": true,
   "main": "out/main/index.js",
   "scripts": {
@@ -16,9 +15,12 @@
     "axios": "^1.8.4",
     "better-sqlite3": "^11.7.0",
     "pinia": "^2.3.1",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-router": "^4.6.4",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/compiler-sfc": "^3.5.13",

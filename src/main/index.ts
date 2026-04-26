@@ -1,7 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'node:path'
 import { getDb } from './db'
-import { registerIpcHandlers } from './ipc'
+import { registerAllIpcHandlers } from './ipc/register-ipc'
 
 const isDev = !!process.env.ELECTRON_RENDERER_URL
 
@@ -27,15 +27,15 @@ function createWindow() {
   })
 
   if (isDev) {
-    win.loadURL(process.env.ELECTRON_RENDERER_URL)
+    win.loadURL(process.env.ELECTRON_RENDERER_URL!)
   } else {
-    win.loadFile(join(__dirname, '../../dist/index.html'))
+    win.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
 
 app.whenReady().then(() => {
   getDb()
-  registerIpcHandlers()
+  registerAllIpcHandlers()
   createWindow()
 
   app.on('activate', () => {
