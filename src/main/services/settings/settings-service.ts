@@ -1,15 +1,52 @@
-import { getDb } from '../../db'
+import { env } from '../../env'
+import { settingsRepository } from '../../storage/repositories/settings.repository'
 
-export function getSetting(key: string): string | null {
-  const db = getDb()
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value: string } | undefined
-  return row?.value ?? null
+export const SETTING_KEYS = {
+  neteaseBaseUrl: 'netease.baseUrl',
+  piCommand: 'pi.command',
+  piMode: 'pi.mode',
+  piWorkdir: 'pi.workdir',
+  appearanceTheme: 'appearance.theme',
+  fluidSynthPath: 'fluidsynth.path',
+  soundFontPath: 'soundfont.path'
+} as const
+
+export class SettingsService {
+  get(key: string) {
+    return settingsRepository.get(key)
+  }
+
+  set(key: string, value: string) {
+    settingsRepository.set(key, value)
+  }
+
+  getAll() {
+    return settingsRepository.getAll()
+  }
+
+  getNeteaseBaseUrl() {
+    return this.get(SETTING_KEYS.neteaseBaseUrl) || env.neteaseBaseUrl
+  }
+
+  getPiCommand() {
+    return this.get(SETTING_KEYS.piCommand) || env.piCommand
+  }
+
+  getPiMode() {
+    return this.get(SETTING_KEYS.piMode) || env.piMode
+  }
+
+  getPiWorkdir() {
+    return this.get(SETTING_KEYS.piWorkdir) || env.piWorkdir || undefined
+  }
+
+  getFluidSynthPath() {
+    return this.get(SETTING_KEYS.fluidSynthPath) || env.fluidSynthPath
+  }
+
+  getSoundFontPath() {
+    return this.get(SETTING_KEYS.soundFontPath) || env.soundFontPath
+  }
 }
 
-export function setSetting(key: string, value: string): void {
-  const db = getDb()
-  db.prepare(
-    `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?)
-     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
-  ).run(key, value, Date.now())
-}
+export const settingsService = new SettingsService()

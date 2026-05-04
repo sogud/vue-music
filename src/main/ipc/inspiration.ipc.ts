@@ -1,25 +1,15 @@
 import { ipcMain } from 'electron'
 import { z } from 'zod'
-import { saveInspiration, listInspirations, removeInspiration } from '../services/inspiration/inspiration-service'
-import type { SaveInspirationInput } from '@shared/types'
+import { inspirationService } from '../services/inspiration/inspiration-service'
 
 const SaveInspirationSchema = z.object({
   trackId: z.string().min(1),
   analysisId: z.string().optional(),
   note: z.string().optional()
 })
-const IdSchema = z.string().min(1)
 
 export function registerInspirationIpc() {
-  ipcMain.handle('musedesk:inspiration:save', async (_event, input: SaveInspirationInput) => {
-    return saveInspiration(SaveInspirationSchema.parse(input))
-  })
-
-  ipcMain.handle('musedesk:inspiration:list', async () => {
-    return listInspirations()
-  })
-
-  ipcMain.handle('musedesk:inspiration:remove', async (_event, id: string) => {
-    return removeInspiration(IdSchema.parse(id))
-  })
+  ipcMain.handle('inspiration:save', (_event, input) => inspirationService.save(SaveInspirationSchema.parse(input)))
+  ipcMain.handle('inspiration:list', () => inspirationService.list())
+  ipcMain.handle('inspiration:remove', (_event, id) => inspirationService.remove(z.string().min(1).parse(id)))
 }

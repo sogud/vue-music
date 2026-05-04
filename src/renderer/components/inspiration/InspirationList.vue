@@ -5,6 +5,7 @@
       :key="inspiration.id"
       :inspiration="inspiration"
       @create-project="$emit('create-project', $event)"
+      @generate-composition="$emit('generate-composition', $event)"
       @delete="$emit('delete', $event)"
     />
   </div>
@@ -20,6 +21,7 @@ defineProps<{
 
 defineEmits<{
   'create-project': [id: string]
+  'generate-composition': [id: string]
   'delete': [id: string]
 }>()
 </script>

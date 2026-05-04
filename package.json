@@ -1,20 +1,28 @@
 {
-  "name": "musedesk",
+  "name": "otodesk",
   "version": "0.1.0",
-  "description": "MuseDesk - 桌面端 AI 音乐灵感工作台（Electron + Vue 3 + TypeScript）",
+  "description": "OtoDesk - desktop AI music workstation",
   "private": true,
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
+    "dev:all": "concurrently -k -n api,app -c \"#A7835A,#77736B\" \"npm run netease:api\" \"wait-on http://127.0.0.1:3000 && npm run dev\"",
     "start": "electron-vite preview",
+    "netease:api": "NeteaseCloudMusicApi",
     "build": "electron-vite build",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint --ext .js,.ts,.vue src"
+    "typecheck": "vue-tsc --noEmit",
+    "test": "npm run typecheck",
+    "rebuild:native": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "axios": "^1.8.4",
+    "@electron-toolkit/preload": "^3.0.2",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@tonejs/midi": "^2.0.28",
     "better-sqlite3": "^11.7.0",
+    "dotenv": "^16.4.7",
     "pinia": "^2.3.1",
+    "tailwindcss": "^3.4.17",
     "vue": "^3.5.13",
     "vue-router": "^4.6.4",
     "zod": "^3.25.76"
@@ -24,11 +32,14 @@
     "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vue/compiler-sfc": "^3.5.13",
+    "concurrently": "^9.2.1",
     "electron": "^31.7.7",
+    "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
-    "eslint": "^9.25.1",
-    "eslint-plugin-vue": "^9.33.0",
+    "NeteaseCloudMusicApi": "^4.31.0",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19"
+    "vite": "^5.4.19",
+    "vue-tsc": "^2.2.8",
+    "wait-on": "^9.0.5"
   }
 }

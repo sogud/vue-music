@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ot-paper: 248 246 242;
+  --ot-card: 255 255 255;
+  --ot-panel: 244 240 234;
+  --ot-glass: 255 255 255;
+  --ot-ink: 31 31 31;
+  --ot-muted: 119 115 107;
+  --ot-line: 232 225 216;
+  --ot-accent: 167 131 90;
+  --ot-danger: 184 92 92;
+  --ot-code-bg: 31 31 31;
+  --ot-code-fg: 248 246 242;
+  --ot-soft: 243 238 230;
+  --ot-shadow: 72 58 42;
+  color-scheme: light;
+  font-family:
+    'Avenir Next',
+    'Hiragino Sans',
+    'Yu Gothic',
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+  background: rgb(var(--ot-paper));
+  color: rgb(var(--ot-ink));
+}
+
+:root[data-theme='dark'] {
+  --ot-paper: 25 24 22;
+  --ot-card: 38 36 33;
+  --ot-panel: 31 30 28;
+  --ot-glass: 45 42 38;
+  --ot-ink: 238 233 225;
+  --ot-muted: 169 160 148;
+  --ot-line: 70 65 58;
+  --ot-accent: 207 168 117;
+  --ot-danger: 221 120 120;
+  --ot-code-bg: 13 13 12;
+  --ot-code-fg: 239 235 228;
+  --ot-soft: 50 47 43;
+  --ot-shadow: 0 0 0;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 1180px;
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgb(var(--ot-card) / 0.48), rgb(var(--ot-paper) / 0) 280px),
+    rgb(var(--ot-paper));
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+textarea {
+  resize: vertical;
+}
+
+@layer components {
+  .ot-app {
+    background: rgb(var(--ot-paper));
+    color: rgb(var(--ot-ink));
+  }
+
+  .ot-sidebar {
+    background: rgb(var(--ot-panel) / 0.78);
+  }
+
+  .ot-topbar {
+    background: rgb(var(--ot-card) / 0.52);
+  }
+
+  .ot-assistant {
+    background: rgb(var(--ot-card) / 0.36);
+  }
+
+  .ot-footer {
+    background: rgb(var(--ot-card) / 0.58);
+  }
+
+  .ot-surface {
+    background: rgb(var(--ot-card) / 0.82);
+  }
+
+  .ot-soft-surface {
+    background: rgb(var(--ot-soft) / 0.72);
+  }
+
+  .ot-card {
+    @apply rounded-lg border border-line/80 bg-card shadow-[0_1px_4px_rgb(var(--ot-shadow)/0.08)];
+  }
+
+  .ot-glass-card {
+    @apply rounded-xl border border-line/80 shadow-[0_8px_32px_rgb(var(--ot-shadow)/0.06)];
+    background: rgb(var(--ot-glass) / 0.62);
+  }
+
+  .ot-feature-card {
+    @apply rounded-xl border border-line/90 p-6 shadow-[0_16px_48px_rgb(var(--ot-shadow)/0.07)];
+    background: rgb(var(--ot-card) / 0.54);
+  }
+
+  .ot-start-card {
+    @apply min-h-44 rounded-xl border border-line/80 p-6 shadow-[0_10px_30px_rgb(var(--ot-shadow)/0.05)] transition hover:-translate-y-0.5;
+    background: rgb(var(--ot-card) / 0.58);
+  }
+
+  .ot-start-card:hover {
+    background: rgb(var(--ot-card));
+  }
+
+  .ot-api-card {
+    @apply flex items-center justify-between gap-5 rounded-xl border border-line/80 p-5 shadow-[0_8px_28px_rgb(var(--ot-shadow)/0.05)];
+    background: rgb(var(--ot-panel) / 0.8);
+  }
+
+  .assistant-action {
+    @apply grid gap-2 rounded-xl border border-line/80 px-2 py-3 text-muted hover:border-accent hover:text-accent;
+    background: rgb(var(--ot-card) / 0.72);
+  }
+
+  .assistant-action span {
+    @apply text-xl;
+  }
+
+  .assistant-action small {
+    @apply text-[11px];
+  }
+
+  .ot-button {
+    @apply rounded-lg border border-line bg-card px-4 py-2 text-sm text-ink hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ot-button-primary {
+    @apply rounded-lg border border-accent bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ot-input {
+    @apply rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/55 focus:border-accent;
+  }
+
+  .ot-label {
+    @apply text-xs font-medium uppercase tracking-[0.08em] text-muted;
+  }
+
+  .ot-tag {
+    @apply rounded-full px-2.5 py-1 text-xs text-muted;
+    background: rgb(var(--ot-soft));
+  }
+
+  .ot-terminal {
+    border-color: rgb(var(--ot-line));
+    background: rgb(var(--ot-code-bg));
+    color: rgb(var(--ot-code-fg));
+  }
+}

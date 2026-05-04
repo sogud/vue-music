@@ -1,7 +1,3 @@
-// ============================================================
-// Domain types
-// ============================================================
-
 export type TrackSource = 'netease'
 
 export type Track = {
@@ -14,7 +10,6 @@ export type Track = {
   coverUrl?: string
   duration: number
   lyric?: string
-  tags: string[]
   createdAt: number
   updatedAt: number
 }
@@ -29,6 +24,14 @@ export type SearchTrackResult = {
   duration: number
 }
 
+export type CreationSuggestion = {
+  id: string
+  title: string
+  description: string
+  moodTags: string[]
+  genreTags: string[]
+}
+
 export type SongAnalysis = {
   id: string
   trackId: string
@@ -38,17 +41,9 @@ export type SongAnalysis = {
   lyricThemes: string[]
   inspirationPoints: string[]
   avoidPoints: string[]
-  recommendedThemes: CreationTheme[]
+  creationSuggestions: CreationSuggestion[]
   createdAt: number
   updatedAt: number
-}
-
-export type CreationTheme = {
-  id: string
-  title: string
-  description: string
-  moodTags: string[]
-  genreTags: string[]
 }
 
 export type Inspiration = {
@@ -59,144 +54,184 @@ export type Inspiration = {
   note?: string
   moodTags: string[]
   genreTags: string[]
+  trackTitle?: string
+  trackArtist?: string
   createdAt: number
   updatedAt: number
 }
 
-export type CreationProject = {
+export type Composition = {
+  version: '1.0'
   id: string
   title: string
-  sourceInspirationId?: string
-  sourceTrackId?: string
-  userIdea: string
-  directions: CreationDirection[]
+  description?: string
+  bpm: number
+  timeSignature: [4, 4]
+  key: string
+  bars: number
+  tracks: CompositionTrack[]
   createdAt: number
   updatedAt: number
 }
 
-export type CreationDirection = {
-  id: string
-  title: string
-  description: string
-  moodTags: string[]
-  genreTags: string[]
-  musicPrompt: string
-  lyricTheme: string
-  coverPrompt: string
-}
+export type CompositionTrack = InstrumentTrack | DrumTrack
 
-export type PlayerState = {
-  currentTrack: Track | null
-  playableUrl: string | null
-  isPlaying: boolean
-  currentTime: number
-  duration: number
+export type InstrumentTrack = {
+  id: string
+  type: 'instrument'
+  name: string
+  role: 'chords' | 'bass' | 'melody' | 'pad' | 'lead'
+  channel: number
+  program: number
   volume: number
+  pan: number
+  notes: NoteEvent[]
 }
 
-// ============================================================
-// IPC input types
-// ============================================================
-
-export type AnalyzeTrackInput = {
-  trackId: string
-  userNote?: string
+export type DrumTrack = {
+  id: string
+  type: 'drums'
+  name: string
+  role: 'drums'
+  channel: 9
+  volume: number
+  pan: number
+  notes: NoteEvent[]
 }
 
-export type SaveInspirationInput = {
-  trackId: string
-  analysisId?: string
-  note?: string
+export type NoteEvent = {
+  pitch: number
+  start: number
+  duration: number
+  velocity: number
 }
 
-export type CreateFromInspirationInput = {
-  inspirationId: string
+export type Project = {
+  id: string
+  title: string
+  description?: string
+  sourceTrackId?: string
+  sourceInspirationId?: string
   userIdea?: string
+  composition: Composition
+  createdAt: number
+  updatedAt: number
 }
 
-export type CreateFromIdeaInput = {
-  userIdea: string
+export type RenderOutput = {
+  id: string
+  projectId: string
+  midiPath: string
+  wavPath: string
+  audioUrl: string
+  createdAt: number
 }
 
-// ============================================================
-// Agent input/output types
-// ============================================================
+export type RenderToolStatus = {
+  fluidsynthAvailable: boolean
+  fluidsynthPath?: string
+  soundFontConfigured: boolean
+  soundFontPath?: string
+  canRender: boolean
+  message?: string
+}
 
-export type AnalyzeSongAgentInput = {
+export type AnalyzeSongInput = {
   title: string
   artist: string
+  album?: string
   lyric?: string
   userNote?: string
 }
 
-export type AnalyzeSongAgentOutput = {
+export type AnalyzeSongOutput = {
   summary: string
   moodTags: string[]
   genreTags: string[]
   lyricThemes: string[]
   inspirationPoints: string[]
   avoidPoints: string[]
-  recommendedThemes: Omit<CreationTheme, 'id'>[]
+  creationSuggestions: Omit<CreationSuggestion, 'id'>[]
 }
 
-export type GenerateDirectionsAgentInput = {
-  track?: Track
-  analysis?: SongAnalysis
-  userIdea?: string
+export type GenerateCompositionInput = {
+  idea: string
+  bars: number
+  bpm?: number
+  style?: string
+  sourceAnalysis?: SongAnalysis
 }
 
-export type GenerateDirectionsAgentOutput = {
-  directions: Omit<CreationDirection, 'id'>[]
+export type GenerateCompositionOutput = {
+  composition: Composition
 }
 
-// ============================================================
-// API surface types
-// ============================================================
-
-export type PlayerAPI = {
-  playTrack(track: Track): Promise<void>
-  pause(): Promise<void>
-  resume(): Promise<void>
-  seek(time: number): Promise<void>
-  setVolume(volume: number): Promise<void>
-  getState(): Promise<PlayerState>
-}
-
-export type TrackAPI = {
+export type MusicProvider = {
   searchTracks(query: string): Promise<SearchTrackResult[]>
-  resolveTrack(input: { source: 'netease'; sourceId: string }): Promise<Track>
+  getTrackDetail(sourceId: string): Promise<Track>
+  getLyric(sourceId: string): Promise<string | null>
+  getPlayableUrl(sourceId: string): Promise<string | null>
+}
+
+export type MusicApi = {
+  searchTracks(query: string): Promise<SearchTrackResult[]>
+  resolveTrack(input: { source: TrackSource; sourceId: string }): Promise<Track>
   getLyric(trackId: string): Promise<string | null>
   getPlayableUrl(trackId: string): Promise<string | null>
 }
 
-export type AnalysisAPI = {
-  analyzeTrack(input: AnalyzeTrackInput): Promise<SongAnalysis>
+export type AnalysisApi = {
+  analyzeTrack(input: { trackId: string; userNote?: string }): Promise<SongAnalysis>
   getByTrack(trackId: string): Promise<SongAnalysis | null>
 }
 
-export type InspirationAPI = {
-  save(input: SaveInspirationInput): Promise<Inspiration>
+export type InspirationApi = {
+  save(input: { trackId: string; analysisId?: string; note?: string }): Promise<Inspiration>
   list(): Promise<Inspiration[]>
   remove(id: string): Promise<void>
 }
 
-export type CreationAPI = {
-  createFromInspiration(input: CreateFromInspirationInput): Promise<CreationProject>
-  createFromIdea(input: CreateFromIdeaInput): Promise<CreationProject>
-  list(): Promise<CreationProject[]>
-  get(id: string): Promise<CreationProject | null>
+export type CompositionApi = {
+  generateFromIdea(input: {
+    idea: string
+    bars: number
+    bpm?: number
+    style?: string
+    sourceAnalysisId?: string
+    sourceInspirationId?: string
+  }): Promise<Project>
+  validate(composition: unknown): Promise<{ ok: boolean; errors: string[] }>
 }
 
-export type SettingsAPI = {
+export type ProjectApi = {
+  create(input: { title: string; description?: string; composition: Composition }): Promise<Project>
+  list(): Promise<Project[]>
+  get(id: string): Promise<Project | null>
+  updateComposition(projectId: string, composition: Composition): Promise<Project>
+  remove(id: string): Promise<void>
+}
+
+export type RenderApi = {
+  checkTools(): Promise<RenderToolStatus>
+  renderProject(projectId: string): Promise<RenderOutput>
+  openOutputFolder(projectId: string): Promise<void>
+}
+
+export type SettingsApi = {
   get(key: string): Promise<string | null>
   set(key: string, value: string): Promise<void>
+  getAll(): Promise<Record<string, string>>
+  testNetease(): Promise<{ ok: boolean; message: string }>
+  testPi(): Promise<{ ok: boolean; message: string }>
+  testRenderer(): Promise<RenderToolStatus>
 }
 
-export type MusedeskApi = {
-  player: PlayerAPI
-  tracks: TrackAPI
-  analysis: AnalysisAPI
-  inspiration: InspirationAPI
-  creation: CreationAPI
-  settings: SettingsAPI
+export type OtoDeskApi = {
+  music: MusicApi
+  analysis: AnalysisApi
+  inspiration: InspirationApi
+  composition: CompositionApi
+  project: ProjectApi
+  render: RenderApi
+  settings: SettingsApi
 }

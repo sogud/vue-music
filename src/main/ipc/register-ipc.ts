@@ -1,16 +1,17 @@
-import { ipcMain } from 'electron'
-import { registerPlayerIpc } from './player.ipc'
-import { registerTrackIpc } from './track.ipc'
+import { registerMusicIpc } from './music.ipc'
 import { registerAnalysisIpc } from './analysis.ipc'
 import { registerInspirationIpc } from './inspiration.ipc'
-import { registerCreationIpc } from './creation.ipc'
+import { registerCompositionIpc } from './composition.ipc'
+import { registerProjectIpc } from './project.ipc'
+import { registerRenderIpc } from './render.ipc'
 import { registerSettingsIpc } from './settings.ipc'
 
 export function registerAllIpcHandlers() {
-  registerPlayerIpc()
-  registerTrackIpc()
+  registerMusicIpc()
   registerAnalysisIpc()
   registerInspirationIpc()
-  registerCreationIpc()
+  registerCompositionIpc()
+  registerProjectIpc()
+  registerRenderIpc()
   registerSettingsIpc()
 }

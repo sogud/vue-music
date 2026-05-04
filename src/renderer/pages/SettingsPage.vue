@@ -2,7 +2,7 @@
   <div>
     <h1>{{ t('settings.title') }}</h1>
 
-    <section class="card setting-section">
+  <section class="card setting-section">
       <h3>{{ t('settings.agent') }}</h3>
       <label>
         <span>{{ t('settings.agentProvider') }}</span>
@@ -26,6 +26,26 @@
       <label v-if="agentProvider === 'pi'">
         <span>{{ t('settings.piApiKey') }}</span>
         <input v-model="piApiKey" type="password" placeholder="API Key" />
+      </label>
+      <label v-if="agentProvider === 'pi'">
+        <span>{{ t('settings.piCommand') }}</span>
+        <input v-model="piCommand" placeholder="pi" />
+      </label>
+      <label v-if="agentProvider === 'pi'">
+        <span>{{ t('settings.piWorkdir') }}</span>
+        <input v-model="piWorkdir" placeholder="/path/to/agent" />
+      </label>
+    </section>
+
+    <section class="card setting-section">
+      <h3>{{ t('settings.synthesis') }}</h3>
+      <label>
+        <span>{{ t('settings.fluidSynthPath') }}</span>
+        <input v-model="fluidSynthPath" placeholder="fluidsynth" />
+      </label>
+      <label>
+        <span>{{ t('settings.soundFontPath') }}</span>
+        <input v-model="soundFontPath" placeholder="/path/to/soundfont.sf2" />
       </label>
     </section>
 
@@ -77,6 +97,10 @@ const openaiBaseUrl = ref('https://api.openai.com/v1')
 const openaiApiKey = ref('')
 const openaiModel = ref('gpt-4.1-mini')
 const piApiKey = ref('')
+const piCommand = ref('pi')
+const piWorkdir = ref('')
+const fluidSynthPath = ref('fluidsynth')
+const soundFontPath = ref('')
 const status = ref('')
 
 onMounted(async () => {
@@ -87,6 +111,10 @@ onMounted(async () => {
   openaiApiKey.value = (await store.loadSetting('agent.openai.apiKey')) || ''
   openaiModel.value = (await store.loadSetting('agent.openai.model')) || 'gpt-4.1-mini'
   piApiKey.value = (await store.loadSetting('agent.pi.apiKey')) || ''
+  piCommand.value = (await store.loadSetting('agent.pi.command')) || 'pi'
+  piWorkdir.value = (await store.loadSetting('agent.pi.workdir')) || ''
+  fluidSynthPath.value = (await store.loadSetting('synthesis.fluidsynth.path')) || 'fluidsynth'
+  soundFontPath.value = (await store.loadSetting('synthesis.soundfont.path')) || ''
 })
 
 function onAgentChange(e: Event) {
@@ -114,6 +142,14 @@ async function onSave() {
   if (piApiKey.value) {
     await store.saveSetting('agent.pi.apiKey', piApiKey.value)
   }
+  if (piCommand.value.trim()) {
+    await store.saveSetting('agent.pi.command', piCommand.value.trim())
+  } else {
+    await store.saveSetting('agent.pi.command', 'pi')
+  }
+  await store.saveSetting('agent.pi.workdir', piWorkdir.value.trim())
+  await store.saveSetting('synthesis.fluidsynth.path', fluidSynthPath.value.trim() || 'fluidsynth')
+  await store.saveSetting('synthesis.soundfont.path', soundFontPath.value.trim())
   status.value = t('settings.saved')
 }
 </script>

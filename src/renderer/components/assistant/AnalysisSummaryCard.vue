@@ -16,6 +16,12 @@
         <li v-for="point in analysis.inspirationPoints" :key="point">{{ point }}</li>
       </ul>
     </div>
+    <div v-if="analysis.avoidPoints.length" class="section">
+      <h5>{{ t('analysis.avoidPoints') }}</h5>
+      <ul>
+        <li v-for="point in analysis.avoidPoints" :key="point">{{ point }}</li>
+      </ul>
+    </div>
   </section>
 </template>
 

@@ -9,6 +9,7 @@
     <div class="meta">{{ formatDate(inspiration.createdAt) }}</div>
     <div class="actions">
       <button @click="$emit('create-project', inspiration.id)">{{ t('inspiration.createProject') }}</button>
+      <button @click="$emit('generate-composition', inspiration.id)">{{ t('inspiration.generateComposition') }}</button>
       <button @click="$emit('delete', inspiration.id)">{{ t('common.delete') }}</button>
     </div>
   </div>
@@ -26,6 +27,7 @@ defineProps<{
 
 defineEmits<{
   'create-project': [id: string]
+  'generate-composition': [id: string]
   'delete': [id: string]
 }>()
 

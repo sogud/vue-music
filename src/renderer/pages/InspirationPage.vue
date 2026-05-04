@@ -10,6 +10,7 @@
     <InspirationList
       :inspirations="store.inspirations"
       @create-project="onCreateProject"
+      @generate-composition="onGenerateComposition"
       @delete="onDelete"
     />
   </div>
@@ -17,13 +18,17 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import InspirationList from '../components/inspiration/InspirationList.vue'
 import { useInspirationStore } from '../stores/inspiration.store'
 import { useCreationStore } from '../stores/creation.store'
+import { useCompositionStore } from '../stores/composition.store'
 import { useI18nText } from '../i18n'
 
 const store = useInspirationStore()
 const creationStore = useCreationStore()
+const compositionStore = useCompositionStore()
+const router = useRouter()
 const { t } = useI18nText()
 
 onMounted(() => {
@@ -32,6 +37,13 @@ onMounted(() => {
 
 async function onCreateProject(inspirationId: string) {
   await creationStore.createFromInspiration({ inspirationId })
+}
+
+async function onGenerateComposition(inspirationId: string) {
+  const project = await compositionStore.generateFromInspiration({ inspirationId })
+  if (project?.id) {
+    await router.push(`/workbench/${project.id}`)
+  }
 }
 
 async function onDelete(id: string) {

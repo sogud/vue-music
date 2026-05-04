@@ -12,6 +12,7 @@
       @pause="playerStore.pause"
       @analyze="onAnalyze"
       @save-inspiration="onSaveInspiration"
+      @generate-direction="onGenerateDirection"
     />
     <section v-if="!playerStore.currentTrack" class="card empty-state">
       <h3>{{ t('home.emptyTitle') }}</h3>
@@ -29,7 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import CurrentSongCard from '../components/CurrentSongCard.vue'
 import { usePlayerStore } from '../stores/player.store'
 import { useAnalysisStore } from '../stores/analysis.store'
@@ -42,6 +44,8 @@ const analysisStore = useAnalysisStore()
 const inspirationStore = useInspirationStore()
 const { t } = useI18nText()
 const inspirationNote = ref('')
+const router = useRouter()
+const currentAnalysisTrackId = computed(() => analysisStore.currentAnalysis?.trackId)
 
 onMounted(async () => {
   await inspirationStore.fetchInspirations()
@@ -58,11 +62,19 @@ async function onAnalyze() {
 
 async function onSaveInspiration() {
   if (!playerStore.currentTrack) return
+  const trackId = playerStore.currentTrack.id
+  const analysisId = currentAnalysisTrackId.value === trackId ? analysisStore.currentAnalysis?.id : undefined
   await inspirationStore.saveInspiration({
-    trackId: playerStore.currentTrack.id,
+    trackId,
+    analysisId,
     note: inspirationNote.value.trim() || undefined
   })
   inspirationNote.value = ''
+}
+
+function onGenerateDirection() {
+  if (!playerStore.currentTrack) return
+  void router.push('/projects')
 }
 </script>
 

@@ -6,7 +6,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../pages/HomePage.vue')
+      component: () => import('../pages/HomePage.vue'),
+      alias: '/listen'
     },
     {
       path: '/inspiration',
@@ -19,9 +20,19 @@ const router = createRouter({
       component: () => import('../pages/AnalysisPage.vue')
     },
     {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('../pages/ProjectsPage.vue')
+    },
+    {
       path: '/creation',
       name: 'creation',
       component: () => import('../pages/CreationPage.vue')
+    },
+    {
+      path: '/workbench/:projectId?',
+      name: 'workbench',
+      component: () => import('../pages/WorkbenchPage.vue')
     },
     {
       path: '/settings',

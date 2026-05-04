@@ -19,15 +19,15 @@
     />
 
     <!-- Lyrics section -->
-    <section v-if="currentTrack?.lyric" class="card lyric-section">
+    <section v-if="lyricText" class="card lyric-section">
       <h3>{{ t('analysis.lyric') }}</h3>
-      <pre>{{ currentTrack.lyric }}</pre>
+      <pre>{{ lyricText }}</pre>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import AnalysisSummaryCard from '../components/assistant/AnalysisSummaryCard.vue'
 import RecommendedThemeList from '../components/assistant/RecommendedThemeList.vue'
 import { useAnalysisStore } from '../stores/analysis.store'
@@ -37,14 +37,41 @@ import { useI18nText } from '../i18n'
 const analysisStore = useAnalysisStore()
 const playerStore = usePlayerStore()
 const { t } = useI18nText()
+const lyricText = ref('')
 
 const currentTrack = computed(() => playerStore.currentTrack)
+
+async function loadLyric() {
+  const track = currentTrack.value
+  if (!track) {
+    lyricText.value = ''
+    return
+  }
+
+  try {
+    const lyric = await window.musedesk.tracks.getLyric(track.id)
+    lyricText.value = lyric ?? track.lyric ?? ''
+  } catch {
+    lyricText.value = track.lyric ?? ''
+  }
+}
 
 onMounted(() => {
   if (currentTrack.value) {
     analysisStore.fetchAnalysisByTrack(currentTrack.value.id)
+    loadLyric()
   }
 })
+
+watch(currentTrack, async (track) => {
+  if (!track) {
+    lyricText.value = ''
+    return
+  }
+
+  analysisStore.fetchAnalysisByTrack(track.id)
+  await loadLyric()
+}, { immediate: true })
 </script>
 
 <style scoped>

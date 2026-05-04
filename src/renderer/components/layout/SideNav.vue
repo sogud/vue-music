@@ -22,10 +22,12 @@ import { useI18nText } from '../../i18n'
 const { t } = useI18nText()
 
 const navItems = [
-  { path: '/', key: 'nav.home' },
+  { path: '/listen', key: 'nav.listen' },
   { path: '/inspiration', key: 'nav.inspiration' },
   { path: '/analysis', key: 'nav.analysis' },
+  { path: '/projects', key: 'nav.projects' },
   { path: '/creation', key: 'nav.creation' },
+  { path: '/workbench', key: 'nav.workbench' },
   { path: '/settings', key: 'nav.settings' }
 ]
 
