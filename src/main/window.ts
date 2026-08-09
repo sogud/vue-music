@@ -11,7 +11,9 @@ export function createMainWindow() {
     minHeight: 720,
     autoHideMenuBar: true,
     backgroundColor: '#F8F6F2',
-    title: 'OtoDesk',
+    title: 'oto',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    trafficLightPosition: process.platform === 'darwin' ? { x: 20, y: 20 } : undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,

@@ -1,1 +1,3 @@
-export const settingsApi = window.otodesk.settings
+import { otoApi } from './client'
+
+export const settingsApi = otoApi.settings

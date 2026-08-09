@@ -7,6 +7,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/renderer/src/*"],
       "@renderer/*": ["src/renderer/src/*"],
       "@main/*": ["src/main/*"],
       "@shared/*": ["src/shared/*"]
@@ -16,7 +17,9 @@
   },
   "include": [
     "electron.vite.config.ts",
+    "vite.web.config.ts",
     "src/shared/**/*.ts",
+    "src/server/**/*.ts",
     "src/main/index.ts",
     "src/main/window.ts",
     "src/main/env.ts",
@@ -29,6 +32,7 @@
     "src/main/ipc/render.ipc.ts",
     "src/main/ipc/settings.ipc.ts",
     "src/main/services/music/**/*.ts",
+    "src/main/services/ai/**/*.ts",
     "src/main/services/pi/**/*.ts",
     "src/main/services/analysis/analysis-service.ts",
     "src/main/services/inspiration/inspiration-service.ts",

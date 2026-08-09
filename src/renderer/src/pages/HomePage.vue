@@ -1,77 +1,88 @@
 <template>
-  <section class="mx-auto max-w-5xl px-10 py-12">
-    <p class="text-sm text-muted">贴近当前心情的音乐</p>
-    <div class="mt-14">
-      <h1 class="text-3xl font-light tracking-normal text-ink">早上好，今天想听什么？<span class="text-accent">☼</span></h1>
-      <p class="mt-3 text-sm text-muted">先搜索真实歌曲，再让 Pi 分析和生成原创 composition。</p>
+  <section class="ot-page flex flex-col">
+    <div class="ot-page-header">
+      <div>
+        <p class="ot-label">Home</p>
+        <h1 class="ot-page-title">今天听什么？</h1>
+        <p class="mt-3 text-sm text-muted">听歌、分析、生成原创工程。</p>
+      </div>
+      <Button class="h-11 rounded-full px-6" @click="router.push('/listen')">去听歌</Button>
     </div>
 
-    <article class="ot-feature-card mt-12">
-      <div class="flex items-center gap-8">
+    <Card
+      v-motion
+      :initial="motion.softScale.value.initial"
+      :enter="motion.softScale.value.enter"
+      class="ot-hero-card p-6"
+    >
+      <div class="relative z-10 flex items-center gap-8">
         <img
           v-if="music.currentTrack?.coverUrl"
           :src="music.currentTrack.coverUrl"
-          class="h-40 w-40 rounded-xl object-cover"
+          class="h-44 w-44 rounded-2xl object-cover shadow-[0_24px_64px_rgb(0_0_0/0.38)]"
           alt=""
         />
-        <div v-else class="ot-soft-surface grid h-40 w-40 place-items-center rounded-xl text-4xl text-muted">♪</div>
+        <div v-else class="ot-soft-surface grid h-44 w-44 place-items-center rounded-2xl text-5xl text-muted shadow-[0_24px_64px_rgb(0_0_0/0.28)]">♪</div>
         <div class="min-w-0 flex-1">
-          <p class="text-2xl font-medium text-ink">{{ music.currentTrack?.title ?? '连接 API 后选择一首歌' }}</p>
-          <p class="mt-2 text-sm text-muted">{{ music.currentTrack?.artist ?? 'NeteaseCloudMusicApi 当前未提供歌曲数据' }}</p>
-          <p class="mt-5 text-sm leading-7 text-muted">
-            {{ music.currentTrack ? '可以继续分析、保存灵感或生成原创工程。' : '运行 npm run dev:all 后，在顶部搜索框输入歌名或歌手。' }}
-          </p>
-          <div class="mt-6 flex flex-wrap gap-2">
-            <span class="ot-tag">真实搜索</span>
-            <span class="ot-tag">AI 分析</span>
-            <span class="ot-tag">MIDI</span>
-            <span class="ot-tag">WAV</span>
+          <p class="truncate text-4xl font-semibold leading-tight text-ink">{{ music.currentTrack?.title ?? '还没有歌曲' }}</p>
+          <p class="mt-3 text-base text-muted">{{ music.currentTrack?.artist ?? '从真实音乐开始' }}</p>
+          <div class="mt-5 flex flex-wrap gap-2">
+            <Badge variant="secondary">Netease</Badge>
+            <Badge variant="secondary">AI</Badge>
+            <Badge variant="secondary">MIDI</Badge>
+            <Badge variant="secondary">WAV</Badge>
           </div>
         </div>
-        <button class="grid h-16 w-16 place-items-center rounded-full bg-accent text-2xl text-white shadow-[0_8px_24px_rgb(var(--ot-shadow)/0.18)]" @click="goPrimary">
-          ▶
-        </button>
+        <Button size="icon" class="ot-play-button h-[76px] w-[76px] shrink-0 rounded-full" @click="goPrimary">
+          <Play class="h-7 w-7 fill-current" :stroke-width="1.8" />
+        </Button>
       </div>
-    </article>
+    </Card>
 
-    <section class="mt-14">
-      <p class="text-sm text-muted">从灵感开始</p>
-      <div class="mt-5 grid gap-5 md:grid-cols-2">
-        <button class="ot-start-card text-left" @click="router.push('/listen')">
-          <span class="text-xl">✧</span>
-          <span class="mt-5 block text-base font-medium text-ink">AI 分析歌曲</span>
-          <span class="mt-3 block text-sm leading-7 text-muted">搜索真实歌曲，分析情绪、风格、结构和创作关键词。</span>
-          <span class="mt-7 block text-xl">→</span>
-        </button>
+    <section class="mt-7">
+      <p class="ot-label">Start</p>
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <Card class="ot-action-tile min-h-32 cursor-pointer p-5 transition hover:-translate-y-0.5" @click="router.push('/listen')">
+          <Sparkles class="h-5 w-5 text-accent" :stroke-width="1.7" />
+          <span class="mt-4 block text-base font-medium text-ink">听歌与分析</span>
+          <span class="mt-2 block text-sm leading-6 text-muted">搜索、播放、提炼创作方向。</span>
+          <ArrowRight class="mt-4 h-5 w-5 text-accent" :stroke-width="1.7" />
+        </Card>
 
-        <button class="ot-start-card text-left" @click="router.push('/composer')">
-          <span class="text-xl">✐</span>
-          <span class="mt-5 block text-base font-medium text-ink">原创音乐工程</span>
-          <span class="mt-3 block text-sm leading-7 text-muted">输入想法，让 Pi 生成可编辑 composition.json。</span>
-          <span class="mt-7 block text-xl">→</span>
-        </button>
+        <Card class="ot-action-tile min-h-32 cursor-pointer p-5 transition hover:-translate-y-0.5" @click="router.push('/composer')">
+          <PencilLine class="h-5 w-5 text-accent" :stroke-width="1.7" />
+          <span class="mt-4 block text-base font-medium text-ink">创作工程</span>
+          <span class="mt-2 block text-sm leading-6 text-muted">生成、编辑、渲染。</span>
+          <ArrowRight class="mt-4 h-5 w-5 text-accent" :stroke-width="1.7" />
+        </Card>
       </div>
     </section>
 
-    <section v-if="isEmpty" class="ot-api-card mt-10">
+    <Card v-if="isEmpty" class="ot-action-tile mt-6 flex items-center justify-between gap-5 p-4">
       <div>
-        <p class="text-sm font-medium text-ink">为什么现在没有歌曲？</p>
-        <p class="mt-2 text-sm leading-7 text-muted">OtoDesk 不内置假数据。开发时用一条命令同时启动网易云 API 和桌面端。</p>
+        <p class="text-sm font-medium text-ink">无数据</p>
+        <p class="mt-1.5 text-sm leading-6 text-muted">连接音乐服务后开始。</p>
       </div>
       <code class="ot-terminal rounded-lg px-4 py-3 text-xs">npm run dev:all</code>
-      <button class="ot-button" @click="router.push('/settings')">检查设置</button>
-    </section>
+      <Button variant="outline" @click="router.push('/settings')">设置</Button>
+    </Card>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { useMotionPresets } from '@/lib/motion'
+import { ArrowRight, PencilLine, Play, Sparkles } from 'lucide-vue-next'
 import { useMusicStore } from '../stores/music.store'
 import { useProjectStore } from '../stores/project.store'
 import { useInspirationStore } from '../stores/inspiration.store'
 
 const router = useRouter()
+const motion = useMotionPresets()
 const music = useMusicStore()
 const projects = useProjectStore()
 const inspirations = useInspirationStore()

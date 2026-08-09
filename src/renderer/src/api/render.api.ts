@@ -1,1 +1,3 @@
-export const renderApi = window.otodesk.render
+import { otoApi } from './client'
+
+export const renderApi = otoApi.render

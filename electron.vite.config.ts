@@ -32,10 +32,19 @@ export default defineConfig({
     root: resolve(root, 'src/renderer'),
     resolve: {
       alias: {
+        '@': resolve(root, 'src/renderer/src'),
         '@renderer': resolve(root, 'src/renderer/src'),
         '@shared': resolve(root, 'src/shared')
       }
     },
-    plugins: [vue()]
+    plugins: [
+      vue({
+        template: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag.startsWith('media-')
+          }
+        }
+      })
+    ]
   }
 })

@@ -3,19 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --ot-paper: 248 246 242;
-  --ot-card: 255 255 255;
-  --ot-panel: 244 240 234;
-  --ot-glass: 255 255 255;
-  --ot-ink: 31 31 31;
-  --ot-muted: 119 115 107;
-  --ot-line: 232 225 216;
-  --ot-accent: 167 131 90;
-  --ot-danger: 184 92 92;
-  --ot-code-bg: 31 31 31;
-  --ot-code-fg: 248 246 242;
-  --ot-soft: 243 238 230;
-  --ot-shadow: 72 58 42;
+  --radius: 0px;
+  --ot-paper: 238 231 209;
+  --ot-card: 255 248 221;
+  --ot-panel: 213 202 174;
+  --ot-glass: 255 248 221;
+  --ot-ink: 22 20 18;
+  --ot-muted: 91 82 68;
+  --ot-line: 22 20 18;
+  --ot-accent: 231 86 53;
+  --ot-accent-2: 48 142 135;
+  --ot-danger: 191 48 48;
+  --ot-code-bg: 22 20 18;
+  --ot-code-fg: 255 248 221;
+  --ot-soft: 226 216 188;
+  --ot-shadow: 22 20 18;
   color-scheme: light;
   font-family:
     'Avenir Next',
@@ -28,19 +30,38 @@
   color: rgb(var(--ot-ink));
 }
 
+:root[data-theme='light'] {
+  --ot-paper: 238 231 209;
+  --ot-card: 255 248 221;
+  --ot-panel: 213 202 174;
+  --ot-glass: 255 248 221;
+  --ot-ink: 22 20 18;
+  --ot-muted: 91 82 68;
+  --ot-line: 22 20 18;
+  --ot-accent: 231 86 53;
+  --ot-accent-2: 48 142 135;
+  --ot-danger: 191 48 48;
+  --ot-code-bg: 22 20 18;
+  --ot-code-fg: 255 248 221;
+  --ot-soft: 226 216 188;
+  --ot-shadow: 22 20 18;
+  color-scheme: light;
+}
+
 :root[data-theme='dark'] {
-  --ot-paper: 25 24 22;
-  --ot-card: 38 36 33;
+  --ot-paper: 24 23 21;
+  --ot-card: 39 37 33;
   --ot-panel: 31 30 28;
-  --ot-glass: 45 42 38;
-  --ot-ink: 238 233 225;
-  --ot-muted: 169 160 148;
-  --ot-line: 70 65 58;
-  --ot-accent: 207 168 117;
-  --ot-danger: 221 120 120;
-  --ot-code-bg: 13 13 12;
-  --ot-code-fg: 239 235 228;
-  --ot-soft: 50 47 43;
+  --ot-glass: 248 237 203;
+  --ot-ink: 248 237 203;
+  --ot-muted: 184 169 137;
+  --ot-line: 248 237 203;
+  --ot-accent: 255 111 73;
+  --ot-accent-2: 76 190 177;
+  --ot-danger: 255 95 95;
+  --ot-code-bg: 14 13 12;
+  --ot-code-fg: 255 248 221;
+  --ot-soft: 52 49 43;
   --ot-shadow: 0 0 0;
   color-scheme: dark;
 }
@@ -49,13 +70,18 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-width: 1180px;
-  min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgb(var(--ot-card) / 0.48), rgb(var(--ot-paper) / 0) 280px),
-    rgb(var(--ot-paper));
+  min-width: 960px;
+  height: 100%;
+  background: rgb(var(--ot-paper));
 }
 
 button,
@@ -82,65 +108,294 @@ textarea {
 
 @layer components {
   .ot-app {
-    background: rgb(var(--ot-paper));
+    background:
+      linear-gradient(90deg, rgb(var(--ot-line) / 0.06) 1px, transparent 1px),
+      linear-gradient(0deg, rgb(var(--ot-line) / 0.06) 1px, transparent 1px),
+      rgb(var(--ot-paper));
+    background-size: 16px 16px;
     color: rgb(var(--ot-ink));
   }
 
+  .ot-shell {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 82px minmax(0, 1fr) 280px;
+    grid-template-rows: 58px minmax(0, 1fr) 84px;
+    grid-template-areas:
+      'side top top'
+      'side main context'
+      'side player player';
+  }
+
+  .ot-shell-no-context {
+    grid-template-columns: 82px minmax(0, 1fr);
+    grid-template-areas:
+      'side top'
+      'side main'
+      'side player';
+  }
+
   .ot-sidebar {
-    background: rgb(var(--ot-panel) / 0.78);
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 14px 12px;
+    background: rgb(var(--ot-panel));
+    box-shadow: inset -2px 0 0 rgb(var(--ot-line) / 0.9);
+    -webkit-app-region: drag;
   }
 
   .ot-topbar {
-    background: rgb(var(--ot-card) / 0.52);
+    grid-area: top;
+    display: grid;
+    grid-template-columns: minmax(130px, 220px) minmax(280px, 720px) minmax(52px, 1fr);
+    align-items: center;
+    gap: 18px;
+    padding: 0 22px;
+    background: rgb(var(--ot-paper));
+    box-shadow: inset 0 -2px 0 rgb(var(--ot-line) / 0.9);
+    -webkit-app-region: drag;
   }
 
-  .ot-assistant {
-    background: rgb(var(--ot-card) / 0.36);
+  .ot-brand {
+    display: grid;
+    gap: 7px;
+    justify-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: rgb(var(--ot-ink));
+    text-decoration: none;
+  }
+
+  .ot-brand-mark {
+    display: grid;
+    height: 38px;
+    width: 38px;
+    place-items: center;
+    background: rgb(var(--ot-card));
+    color: rgb(var(--ot-accent));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-nav {
+    display: grid;
+    width: 100%;
+    gap: 5px;
+  }
+
+  .ot-nav-link {
+    display: grid;
+    min-height: 54px;
+    place-items: center;
+    gap: 4px;
+    color: rgb(var(--ot-muted));
+    font-size: 11px;
+    line-height: 1;
+    transition:
+      background 140ms ease,
+      color 140ms ease,
+      transform 140ms ease;
+  }
+
+  .ot-nav-link:hover,
+  .ot-nav-active {
+    background: rgb(var(--ot-card));
+    color: rgb(var(--ot-ink));
+  }
+
+  .ot-nav-active {
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-sidebar-status {
+    margin-top: auto;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: rgb(var(--ot-card));
+    color: rgb(var(--ot-muted));
+    font-size: 11px;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      3px 3px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-sidebar nav,
+  .ot-sidebar button,
+  .ot-sidebar a,
+  .ot-topbar form,
+  .ot-topbar input,
+  .ot-topbar button {
+    -webkit-app-region: no-drag;
+  }
+
+  .ot-searchbar {
+    display: flex;
+    height: 40px;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      3px 3px 0 rgb(var(--ot-shadow));
+    -webkit-app-region: no-drag;
+  }
+
+  .ot-main {
+    grid-area: main;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .ot-page {
+    width: min(100%, 1180px);
+    min-height: 100%;
+    margin: 0 auto;
+    padding: 26px 28px 30px;
+  }
+
+  .ot-page-full {
+    width: 100%;
+    min-height: 100%;
+    padding: 22px;
+  }
+
+  .ot-page-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+  }
+
+  .ot-page-title {
+    margin-top: 5px;
+    color: rgb(var(--ot-ink));
+    font-size: clamp(1.65rem, 2.2vw, 2.35rem);
+    font-weight: 650;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+
+  .ot-context-panel {
+    grid-area: context;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 22px 18px;
+    background: rgb(var(--ot-paper) / 0.5);
+    box-shadow: inset 1px 0 0 rgb(var(--ot-line) / 0.08);
   }
 
   .ot-footer {
-    background: rgb(var(--ot-card) / 0.58);
+    grid-area: player;
+    display: grid;
+    grid-template-columns: minmax(210px, 300px) minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 18px;
+    padding: 0 20px;
+    background: rgb(var(--ot-paper));
+    box-shadow:
+      inset 0 2px 0 rgb(var(--ot-line) / 0.9),
+      0 -6px 0 rgb(var(--ot-shadow) / 0.2);
   }
 
   .ot-surface {
-    background: rgb(var(--ot-card) / 0.82);
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
   }
 
   .ot-soft-surface {
-    background: rgb(var(--ot-soft) / 0.72);
+    background: rgb(var(--ot-soft));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line) / 0.75);
   }
 
   .ot-card {
-    @apply rounded-lg border border-line/80 bg-card shadow-[0_1px_4px_rgb(var(--ot-shadow)/0.08)];
+    @apply border-0 bg-card/90;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      6px 6px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-panel {
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
   }
 
   .ot-glass-card {
-    @apply rounded-xl border border-line/80 shadow-[0_8px_32px_rgb(var(--ot-shadow)/0.06)];
-    background: rgb(var(--ot-glass) / 0.62);
+    @apply border-0;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      6px 6px 0 rgb(var(--ot-shadow));
   }
 
   .ot-feature-card {
-    @apply rounded-xl border border-line/90 p-6 shadow-[0_16px_48px_rgb(var(--ot-shadow)/0.07)];
-    background: rgb(var(--ot-card) / 0.54);
+    @apply border-0 p-6;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
   }
 
   .ot-start-card {
-    @apply min-h-44 rounded-xl border border-line/80 p-6 shadow-[0_10px_30px_rgb(var(--ot-shadow)/0.05)] transition hover:-translate-y-0.5;
-    background: rgb(var(--ot-card) / 0.58);
+    @apply min-h-44 border-0 p-6 transition hover:-translate-y-0.5;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
   }
 
   .ot-start-card:hover {
-    background: rgb(var(--ot-card));
+    background: rgb(var(--ot-glass) / 0.085);
   }
 
   .ot-api-card {
-    @apply flex items-center justify-between gap-5 rounded-xl border border-line/80 p-5 shadow-[0_8px_28px_rgb(var(--ot-shadow)/0.05)];
-    background: rgb(var(--ot-panel) / 0.8);
+    @apply flex items-center justify-between gap-5 border-0 p-5;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
   }
 
   .assistant-action {
-    @apply grid gap-2 rounded-xl border border-line/80 px-2 py-3 text-muted hover:border-accent hover:text-accent;
-    background: rgb(var(--ot-card) / 0.72);
+    @apply grid gap-1.5 border-0 px-2 py-2.5 text-muted transition hover:text-ink;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-quick-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 11px 12px;
+    color: rgb(var(--ot-muted));
+    text-align: left;
+    font-size: 13px;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-quick-row:hover {
+    color: rgb(var(--ot-ink));
+    background: rgb(var(--ot-card) / 0.8);
   }
 
   .assistant-action span {
@@ -152,29 +407,383 @@ textarea {
   }
 
   .ot-button {
-    @apply rounded-lg border border-line bg-card px-4 py-2 text-sm text-ink hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-50;
+    @apply border-0 px-4 py-2 text-sm text-ink transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      3px 3px 0 rgb(var(--ot-shadow));
   }
 
   .ot-button-primary {
-    @apply rounded-lg border border-accent bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply border-0 px-4 py-2 text-sm text-white hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50;
+    background: rgb(var(--ot-accent));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
   }
 
   .ot-input {
-    @apply rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/55 focus:border-accent;
+    @apply border-0 px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/55;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
   }
 
   .ot-label {
-    @apply text-xs font-medium uppercase tracking-[0.08em] text-muted;
+    @apply text-xs font-semibold uppercase tracking-[0.13em] text-muted;
   }
 
   .ot-tag {
-    @apply rounded-full px-2.5 py-1 text-xs text-muted;
+    @apply px-2.5 py-1 text-xs text-ink;
     background: rgb(var(--ot-soft));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
   }
 
   .ot-terminal {
     border-color: rgb(var(--ot-line));
     background: rgb(var(--ot-code-bg));
     color: rgb(var(--ot-code-fg));
+  }
+
+  .ot-audio-workbench {
+    @apply overflow-hidden border-0;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      6px 6px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-audio-header {
+    @apply flex items-center gap-5 border-b border-line/10 px-5 py-4;
+    background: rgb(var(--ot-soft));
+    border-bottom-color: rgb(var(--ot-line));
+  }
+
+  .ot-waveform {
+    @apply flex h-11 items-center justify-end gap-1 border-0 px-3;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-waveform span {
+    @apply block w-1;
+    background: rgb(var(--ot-accent-2));
+  }
+
+  .ot-track-row {
+    @apply border-0 text-left transition;
+  }
+
+  .ot-track-row:hover {
+    background: rgb(var(--ot-glass) / 0.065);
+  }
+
+  .ot-track-row[data-active] {
+    box-shadow:
+      inset 6px 0 0 rgb(var(--ot-accent-2)),
+      inset 0 0 0 2px rgb(var(--ot-line));
+    background: rgb(var(--ot-soft));
+  }
+
+  .ot-library-tab {
+    @apply flex items-center justify-between border-0 px-3 py-3 text-sm text-ink transition;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-library-tab small {
+    @apply text-xs text-muted;
+  }
+
+  .ot-library-tab[data-active] {
+    background: rgb(var(--ot-glass) / 0.09);
+    box-shadow: inset 3px 0 0 rgb(var(--ot-accent-2));
+  }
+
+  .ot-chip {
+    @apply border-0 px-3 py-1.5 text-xs text-muted transition hover:text-white;
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-list-card {
+    @apply flex w-full items-center gap-3 border-0 p-2 text-left text-sm text-ink transition hover:bg-white/5;
+  }
+
+  .ot-list-card img {
+    @apply h-10 w-10 shrink-0 object-cover;
+  }
+
+  .ot-list-card span {
+    @apply line-clamp-2 min-w-0;
+  }
+
+  .ot-list-card[data-active] {
+    background: rgb(var(--ot-soft));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-media-player {
+    --media-primary-color: rgb(255 255 255);
+    --media-secondary-color: transparent;
+    --media-text-color: rgb(var(--ot-muted));
+    --media-icon-color: rgb(255 255 255);
+    --media-control-background: transparent;
+    --media-control-hover-background: rgb(var(--ot-soft));
+    --media-control-height: 54px;
+    --media-control-padding: 8px;
+    --media-range-track-background: rgb(var(--ot-line) / 0.12);
+    --media-range-bar-color: rgb(var(--ot-accent));
+    --media-range-thumb-background: rgb(var(--ot-accent));
+    --media-range-track-height: 5px;
+    --media-range-thumb-width: 13px;
+    --media-range-thumb-height: 13px;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 0;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-media-player media-control-bar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: 0 12px;
+    background: transparent;
+  }
+
+  .ot-media-player media-play-button,
+  .ot-media-player media-mute-button {
+    border-radius: 0;
+  }
+
+  .ot-media-player media-play-button {
+    margin-right: 4px;
+    background: rgb(var(--ot-accent));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-media-player media-time-range {
+    min-width: 120px;
+    flex: 1;
+  }
+
+  .ot-media-player media-time-display {
+    min-width: 70px;
+    color: rgb(var(--ot-muted));
+    font-size: 13px;
+  }
+
+  .ot-media-player media-volume-range {
+    max-width: 104px;
+  }
+
+  .ot-player-empty {
+    @apply mx-auto flex min-h-14 min-w-0 max-w-[740px] items-center justify-center gap-3 border-0 px-5 py-2;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      4px 4px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-hero-card {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    background:
+      linear-gradient(90deg, rgb(var(--ot-line) / 0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgb(var(--ot-line) / 0.08) 1px, transparent 1px),
+      rgb(var(--ot-card));
+    background-size: 12px 12px;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      7px 7px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-play-button {
+    background: rgb(var(--ot-accent));
+    color: white;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-play-button:hover {
+    transform: scale(1.08);
+  }
+
+  .ot-action-tile {
+    border: 0;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-action-tile:hover {
+    background: rgb(var(--ot-glass) / 0.085);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--ot-line) / 0.12),
+      0 20px 54px rgb(0 0 0 / 0.24);
+  }
+
+  .ot-create-panel {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    background:
+      linear-gradient(90deg, rgb(var(--ot-line) / 0.08) 1px, transparent 1px),
+      linear-gradient(0deg, rgb(var(--ot-line) / 0.08) 1px, transparent 1px),
+      rgb(var(--ot-card));
+    background-size: 16px 16px;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      7px 7px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-compose-input {
+    border: 0;
+    background: rgb(var(--ot-paper));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+    resize: none;
+  }
+
+  .ot-style-chip {
+    border: 0;
+    background: rgb(var(--ot-card));
+    color: rgb(var(--ot-muted));
+    padding: 7px 12px;
+    font-size: 12px;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      3px 3px 0 rgb(var(--ot-shadow));
+    transition:
+      transform 160ms ease,
+      background 160ms ease,
+      color 160ms ease;
+  }
+
+  .ot-style-chip:hover,
+  .ot-style-chip[data-active] {
+    transform: translateY(-1px);
+    background: rgb(var(--ot-glass) / 0.14);
+    color: rgb(var(--ot-ink));
+  }
+
+  .ot-compose-control {
+    background: rgb(var(--ot-card));
+    box-shadow: inset 0 0 0 2px rgb(var(--ot-line));
+  }
+
+  .ot-demo-card {
+    border: 0;
+    background:
+      linear-gradient(90deg, rgb(var(--ot-line) / 0.06) 1px, transparent 1px),
+      linear-gradient(0deg, rgb(var(--ot-line) / 0.06) 1px, transparent 1px),
+      rgb(var(--ot-card));
+    background-size: 14px 14px;
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      6px 6px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-demo-visual {
+    position: relative;
+    display: grid;
+    min-height: 220px;
+    place-items: end stretch;
+    overflow: hidden;
+    background:
+      repeating-linear-gradient(90deg, rgb(var(--ot-accent-2) / 0.18) 0 8px, transparent 8px 16px),
+      rgb(var(--ot-soft));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-demo-visual::after {
+    display: none;
+  }
+
+  .ot-demo-bars {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: end;
+    gap: 6px;
+    padding: 22px;
+  }
+
+  .ot-demo-bars span {
+    display: block;
+    width: 100%;
+    min-width: 5px;
+    background: rgb(var(--ot-accent-2));
+  }
+
+  .ot-project-row {
+    width: 100%;
+    background: rgb(var(--ot-card));
+    padding: 12px;
+    text-align: left;
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .ot-project-row:hover,
+  .ot-project-row[data-active] {
+    transform: translateY(-1px);
+    background: rgb(var(--ot-glass) / 0.085);
+  }
+
+  .ot-render-panel {
+    border: 0;
+    background: rgb(var(--ot-card));
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
+  }
+
+  .ot-cover-playing {
+    animation: ot-cover-spin 18s linear infinite;
+    box-shadow:
+      0 0 0 1px rgb(var(--ot-line) / 0.12),
+      0 0 34px rgb(var(--ot-accent) / 0.24);
+  }
+
+  @keyframes ot-cover-spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+@layer utilities {
+  .rounded,
+  .rounded-sm,
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-full,
+  [class*='rounded-['] {
+    border-radius: 0 !important;
+  }
+
+  .ot-pixel-frame {
+    box-shadow:
+      inset 0 0 0 2px rgb(var(--ot-line)),
+      5px 5px 0 rgb(var(--ot-shadow));
   }
 }

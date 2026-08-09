@@ -1,1 +1,3 @@
-export const projectApi = window.otodesk.project
+import { otoApi } from './client'
+
+export const projectApi = otoApi.project

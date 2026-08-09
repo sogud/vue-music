@@ -24,6 +24,24 @@ export type SearchTrackResult = {
   duration: number
 }
 
+export type MusicList = {
+  source: TrackSource
+  sourceId: string
+  title: string
+  coverUrl?: string
+  description?: string
+  trackCount?: number
+  playCount?: number
+  updateFrequency?: string
+}
+
+export type MusicDiscovery = {
+  newSongs: SearchTrackResult[]
+  playlists: MusicList[]
+  charts: MusicList[]
+  hotSearches: string[]
+}
+
 export type CreationSuggestion = {
   id: string
   title: string
@@ -136,6 +154,82 @@ export type RenderToolStatus = {
   message?: string
 }
 
+export type MusicGenerationProviderId =
+  | 'minimax'
+  | 'dashscope-fun'
+  | 'mureka'
+  | 'elevenlabs'
+  | 'google-vertex-lyria'
+  | 'replicate'
+  | 'fal'
+  | 'beatoven'
+  | 'soundraw'
+  | 'loudly'
+  | 'aiva'
+  | 'tencent-aigc-audio'
+  | 'stability'
+  | 'runware'
+  | 'wavespeed'
+  | 'aimlapi'
+  | 'apiframe'
+  | 'modelslab'
+  | 'aimagicx'
+  | 'musicapi'
+  | 'third-party-suno'
+  | 'third-party-udio'
+  | 'riffusion'
+
+export type MusicGenerationProviderInfo = {
+  id: MusicGenerationProviderId
+  label: string
+  status: 'official' | 'aggregator' | 'third-party' | 'experimental'
+  requires: string[]
+  configured: boolean
+  notes: string
+}
+
+export type GenerateMusicApiInput = {
+  provider: MusicGenerationProviderId
+  prompt: string
+  lyrics?: string
+  instrumental?: boolean
+  referenceAudioUrl?: string
+  format?: 'mp3' | 'wav' | 'pcm'
+  durationSeconds?: number
+  model?: string
+}
+
+export type GenerateMusicApiResult = {
+  provider: MusicGenerationProviderId
+  ok: boolean
+  status: 'skipped' | 'submitted' | 'succeeded' | 'failed'
+  providerTaskId?: string
+  audioUrl?: string
+  audioBase64?: string
+  audioHex?: string
+  mimeType?: string
+  raw?: unknown
+  message: string
+}
+
+export type TestAllMusicApisResult = {
+  createdAt: number
+  results: GenerateMusicApiResult[]
+}
+
+export type GeneratePatternInput = {
+  idea: string
+  style?: string
+  bpm?: number
+  bars?: number
+}
+
+export type GeneratePatternOutput = {
+  code: string
+  title: string
+  notes: string
+}
+
 export type AnalyzeSongInput = {
   title: string
   artist: string
@@ -168,6 +262,8 @@ export type GenerateCompositionOutput = {
 
 export type MusicProvider = {
   searchTracks(query: string): Promise<SearchTrackResult[]>
+  getDiscovery(): Promise<MusicDiscovery>
+  getPlaylistTracks(sourceId: string): Promise<SearchTrackResult[]>
   getTrackDetail(sourceId: string): Promise<Track>
   getLyric(sourceId: string): Promise<string | null>
   getPlayableUrl(sourceId: string): Promise<string | null>
@@ -175,6 +271,8 @@ export type MusicProvider = {
 
 export type MusicApi = {
   searchTracks(query: string): Promise<SearchTrackResult[]>
+  getDiscovery(): Promise<MusicDiscovery>
+  getPlaylistTracks(input: { source: TrackSource; sourceId: string }): Promise<SearchTrackResult[]>
   resolveTrack(input: { source: TrackSource; sourceId: string }): Promise<Track>
   getLyric(trackId: string): Promise<string | null>
   getPlayableUrl(trackId: string): Promise<string | null>
@@ -220,14 +318,35 @@ export type RenderApi = {
 export type SettingsApi = {
   get(key: string): Promise<string | null>
   set(key: string, value: string): Promise<void>
+  configureAi(input: {
+    provider: string
+    model: string
+    apiKey?: string
+    baseUrl?: string
+  }): Promise<void>
+  exchangeOpenRouterCode(input: { code: string; codeVerifier: string }): Promise<{ key: string }>
+  listOpenRouterFreeModels(): Promise<{ models: Array<{ id: string; name: string }> }>
   getAll(): Promise<Record<string, string>>
   testNetease(): Promise<{ ok: boolean; message: string }>
+  testAi(): Promise<{ ok: boolean; message: string }>
   testPi(): Promise<{ ok: boolean; message: string }>
   testRenderer(): Promise<RenderToolStatus>
 }
 
+export type MusicGenerationApi = {
+  listProviders(): Promise<MusicGenerationProviderInfo[]>
+  generate(input: GenerateMusicApiInput): Promise<GenerateMusicApiResult>
+  testAll(input?: Partial<Omit<GenerateMusicApiInput, 'provider'>>): Promise<TestAllMusicApisResult>
+}
+
+export type PatternApi = {
+  generate(input: GeneratePatternInput): Promise<GeneratePatternOutput>
+}
+
 export type OtoDeskApi = {
   music: MusicApi
+  musicGeneration: MusicGenerationApi
+  pattern: PatternApi
   analysis: AnalysisApi
   inspiration: InspirationApi
   composition: CompositionApi

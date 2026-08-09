@@ -1,1 +1,3 @@
-export const compositionApi = window.otodesk.composition
+import { otoApi } from './client'
+
+export const compositionApi = otoApi.composition

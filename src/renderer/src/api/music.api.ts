@@ -1,1 +1,3 @@
-export const musicApi = window.otodesk.music
+import { otoApi } from './client'
+
+export const musicApi = otoApi.music

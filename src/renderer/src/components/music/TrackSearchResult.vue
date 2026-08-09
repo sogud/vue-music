@@ -1,5 +1,10 @@
 <template>
-  <button class="ot-card grid w-full grid-cols-[56px_minmax(0,1fr)_auto] gap-4 p-3 text-left" @click="$emit('select')">
+  <Button
+    variant="ghost"
+    :data-active="active || undefined"
+    :class="cn('ot-track-row grid h-auto w-full grid-cols-[56px_minmax(0,1fr)_auto] gap-4 p-3 text-left hover:bg-transparent')"
+    @click="$emit('select')"
+  >
     <img
       v-if="track.coverUrl"
       :src="track.coverUrl"
@@ -13,14 +18,16 @@
       <p v-if="track.album" class="mt-1 truncate text-xs text-muted/80">{{ track.album }}</p>
     </div>
     <span class="self-center text-xs text-muted">{{ durationText }}</span>
-  </button>
+  </Button>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { SearchTrackResult } from '@shared/types'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-const props = defineProps<{ track: SearchTrackResult }>()
+const props = defineProps<{ track: SearchTrackResult; active?: boolean }>()
 defineEmits<{ select: [] }>()
 
 const durationText = computed(() => {

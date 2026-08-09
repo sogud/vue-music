@@ -1,17 +1,21 @@
 import { registerMusicIpc } from './music.ipc'
+import { registerMusicGenerationIpc } from './music-generation.ipc'
 import { registerAnalysisIpc } from './analysis.ipc'
 import { registerInspirationIpc } from './inspiration.ipc'
 import { registerCompositionIpc } from './composition.ipc'
 import { registerProjectIpc } from './project.ipc'
 import { registerRenderIpc } from './render.ipc'
 import { registerSettingsIpc } from './settings.ipc'
+import { registerPatternIpc } from './pattern.ipc'
 
 export function registerAllIpcHandlers() {
   registerMusicIpc()
+  registerMusicGenerationIpc()
   registerAnalysisIpc()
   registerInspirationIpc()
   registerCompositionIpc()
   registerProjectIpc()
   registerRenderIpc()
   registerSettingsIpc()
+  registerPatternIpc()
 }

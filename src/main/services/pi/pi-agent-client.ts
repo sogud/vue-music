@@ -1,4 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
 import { z } from 'zod'
 import { settingsService } from '../settings/settings-service'
 import { toErrorMessage } from '../../utils/errors'
@@ -28,6 +31,11 @@ type RpcState = {
     id?: string
     provider?: string
   }
+}
+
+type PiLaunchConfig = {
+  args: string[]
+  env: NodeJS.ProcessEnv
 }
 
 const DEFAULT_TIMEOUT_MS = 120000
@@ -96,20 +104,21 @@ class PiRpcSession {
   constructor(
     private readonly command: string,
     private readonly cwd: string | undefined,
+    private readonly launchConfig: PiLaunchConfig,
     private readonly systemPrompt?: string
   ) {}
 
   async start() {
     if (this.child) throw new Error('Pi RPC session already started')
 
-    const args = ['--mode', 'rpc', ...PI_DISABLED_ARGS]
+    const args = ['--mode', 'rpc', ...PI_DISABLED_ARGS, ...this.launchConfig.args]
     if (this.systemPrompt) {
       args.push('--system-prompt', this.systemPrompt)
     }
 
     this.child = spawn(this.command, args, {
       cwd: this.cwd,
-      env: process.env,
+      env: this.launchConfig.env,
       stdio: ['pipe', 'pipe', 'pipe']
     })
 
@@ -159,7 +168,7 @@ class PiRpcSession {
   async send(type: string, data: Record<string, unknown> = {}) {
     if (!this.child?.stdin.writable) throw new Error('Pi RPC session is not running')
 
-    const id = `otodesk_${++this.requestId}`
+    const id = `oto_${++this.requestId}`
     const payload = { ...data, id, type }
     return new Promise<RpcResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -278,17 +287,22 @@ export class PiAgentClient {
   async test() {
     let session: PiRpcSession | null = null
     try {
-      session = new PiRpcSession(this.command, this.workdir)
+      const launchConfig = this.buildLaunchConfig()
+      session = new PiRpcSession(this.command, this.workdir, launchConfig)
       await session.start()
       const state = await session.getState()
       const provider = state.model?.provider
       const model = state.model?.id
       if (!provider || !model || provider === 'unknown' || model === 'unknown') {
-        return { ok: false, message: 'Pi RPC 可启动，但没有可用模型或 API 配置。' }
+        return {
+          ok: false,
+          message:
+            'Pi RPC 可启动，但没有可用模型。请在设置页填写 Provider、Model、API Key 和可选 Endpoint，保存后再测试。'
+        }
       }
       await this.runJson(
         {
-          systemPrompt: '你是 OtoDesk 的 Pi 连接测试器。你只能输出 JSON，不要输出 markdown。',
+          systemPrompt: '你是 oto 的 Pi 连接测试器。你只能输出 JSON，不要输出 markdown。',
           input: {
             task: 'connectivity_check',
             requiredOutput: { ok: true, message: 'ready' }
@@ -299,7 +313,10 @@ export class PiAgentClient {
       )
       return { ok: true, message: `Pi RPC 和 JSON roundtrip 可用：${provider}/${model}。` }
     } catch (error) {
-      return { ok: false, message: `请先在设置中配置 Pi。${toErrorMessage(error)}` }
+      return {
+        ok: false,
+        message: `Pi 连接失败。请确认 Pi command 可执行，并检查设置页的 Provider、Model、API Key 和 Endpoint。${toErrorMessage(error)}`
+      }
     } finally {
       session?.stop()
     }
@@ -317,8 +334,73 @@ export class PiAgentClient {
     return settingsService.getPiMode() === 'print' ? 'print' : 'rpc'
   }
 
+  private buildLaunchConfig(): PiLaunchConfig {
+    const provider = settingsService.getAiProvider().trim()
+    const model = settingsService.getAiModel().trim()
+    const apiKey = settingsService.getAiApiKey().trim()
+    const baseUrl = settingsService.getAiBaseUrl().trim()
+    const apiType = settingsService.getAiApiType().trim()
+    const env = { ...process.env }
+    const args: string[] = []
+
+    if (!provider || !model) return { args, env }
+
+    if (baseUrl) {
+      env.OTODESK_AI_API_KEY = apiKey
+      const customProvider = this.ensureCustomProvider({ provider, model, baseUrl, apiType })
+      args.push('--provider', customProvider, '--model', model)
+      return { args, env }
+    }
+
+    args.push('--provider', provider, '--model', model)
+    if (apiKey) args.push('--api-key', apiKey)
+    return { args, env }
+  }
+
+  private ensureCustomProvider(input: { provider: string; model: string; baseUrl: string; apiType: string }) {
+    const providerName = `oto-${input.provider.toLowerCase().replace(/[^a-z0-9-]+/g, '-') || 'ai'}`
+    const agentDir = join(homedir(), '.pi', 'agent')
+    const modelsPath = join(agentDir, 'models.json')
+    mkdirSync(agentDir, { recursive: true })
+
+    let modelsConfig: Record<string, unknown> = {}
+    if (existsSync(modelsPath)) {
+      try {
+        modelsConfig = JSON.parse(readFileSync(modelsPath, 'utf-8')) as Record<string, unknown>
+      } catch {
+        modelsConfig = {}
+      }
+    }
+
+    const providers =
+      typeof modelsConfig.providers === 'object' && modelsConfig.providers
+        ? (modelsConfig.providers as Record<string, unknown>)
+        : {}
+
+    providers[providerName] = {
+      baseUrl: input.baseUrl,
+      api: input.apiType,
+      apiKey: 'OTODESK_AI_API_KEY',
+      compat:
+        input.apiType === 'openai-completions'
+          ? { supportsDeveloperRole: false, supportsReasoningEffort: false }
+          : undefined,
+      models: [{ id: input.model, name: input.model, input: ['text'], reasoning: false }]
+    }
+
+    writeFileSync(modelsPath, `${JSON.stringify({ ...modelsConfig, providers }, null, 2)}\n`, {
+      mode: 0o600
+    })
+    return providerName
+  }
+
   private async runRpc(task: RunPiInput) {
-    const session = new PiRpcSession(this.command, this.workdir, task.systemPrompt)
+    const session = new PiRpcSession(
+      this.command,
+      this.workdir,
+      this.buildLaunchConfig(),
+      task.systemPrompt
+    )
     try {
       await session.start()
       await session.promptAndWait(buildPrompt(task.input), task.timeoutMs ?? DEFAULT_TIMEOUT_MS)
@@ -333,21 +415,23 @@ export class PiAgentClient {
   }
 
   private async runPrint(task: RunPiInput) {
+    const launchConfig = this.buildLaunchConfig()
     const args = [
       '-p',
       ...PI_DISABLED_ARGS,
+      ...launchConfig.args,
       '--system-prompt',
       task.systemPrompt,
       buildPrompt(task.input)
     ]
-    return this.spawnAndCollect(args, task.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+    return this.spawnAndCollect(args, task.timeoutMs ?? DEFAULT_TIMEOUT_MS, launchConfig.env)
   }
 
-  private spawnAndCollect(args: string[], timeoutMs: number) {
+  private spawnAndCollect(args: string[], timeoutMs: number, env: NodeJS.ProcessEnv) {
     return new Promise<string>((resolve, reject) => {
       const child = spawn(this.command, args, {
         cwd: this.workdir,
-        env: process.env,
+        env,
         stdio: ['ignore', 'pipe', 'pipe']
       })
 

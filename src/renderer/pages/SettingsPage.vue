@@ -59,7 +59,7 @@
       </label>
       <label>
         <span>{{ t('settings.neteaseBaseUrl') }}</span>
-        <input v-model="neteaseBaseUrl" placeholder="http://127.0.0.1:3000" />
+        <input v-model="neteaseBaseUrl" placeholder="http://127.0.0.1:39271" />
       </label>
     </section>
 
@@ -92,7 +92,7 @@ const { t } = useI18nText()
 
 const agentProvider = ref<'openai' | 'pi'>('openai')
 const musicProvider = ref<'netease'>('netease')
-const neteaseBaseUrl = ref('http://127.0.0.1:3000')
+const neteaseBaseUrl = ref('http://127.0.0.1:39271')
 const openaiBaseUrl = ref('https://api.openai.com/v1')
 const openaiApiKey = ref('')
 const openaiModel = ref('gpt-4.1-mini')
@@ -106,7 +106,7 @@ const status = ref('')
 onMounted(async () => {
   agentProvider.value = ((await store.loadSetting('agent.provider')) as 'openai' | 'pi' | null) ?? 'openai'
   musicProvider.value = ((await store.loadSetting('music.provider')) as 'netease' | null) ?? 'netease'
-  neteaseBaseUrl.value = (await store.loadSetting('music.netease.baseUrl')) || 'http://127.0.0.1:3000'
+  neteaseBaseUrl.value = (await store.loadSetting('music.netease.baseUrl')) || 'http://127.0.0.1:39271'
   openaiBaseUrl.value = (await store.loadSetting('agent.openai.baseUrl')) || 'https://api.openai.com/v1'
   openaiApiKey.value = (await store.loadSetting('agent.openai.apiKey')) || ''
   openaiModel.value = (await store.loadSetting('agent.openai.model')) || 'gpt-4.1-mini'

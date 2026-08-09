@@ -1,4 +1,4 @@
-import type { SearchTrackResult, Track } from '@shared/types'
+import type { MusicDiscovery, MusicList, SearchTrackResult, Track } from '@shared/types'
 import { createId } from '../../utils/ids'
 import { settingsService } from '../settings/settings-service'
 import type { MusicProvider } from './music-provider'
@@ -7,6 +7,35 @@ type NeteaseSearchResponse = {
   result?: {
     songs?: NeteaseSongLike[]
   }
+}
+
+type NeteaseNewSongResponse = {
+  result?: Array<{
+    id?: number | string
+    name?: string
+    picUrl?: string
+    song?: NeteaseSongLike
+  }>
+}
+
+type NeteasePlaylistResponse = {
+  playlists?: NeteasePlaylistLike[]
+}
+
+type NeteaseToplistResponse = {
+  list?: NeteasePlaylistLike[]
+}
+
+type NeteasePlaylistDetailResponse = {
+  playlist?: {
+    tracks?: NeteaseSongLike[]
+  }
+}
+
+type NeteaseHotSearchResponse = {
+  data?: Array<{
+    searchWord?: string
+  }>
 }
 
 type NeteaseDetailResponse = {
@@ -34,6 +63,17 @@ type NeteaseSongLike = {
   al?: { name?: string; picUrl?: string }
   duration?: number
   dt?: number
+}
+
+type NeteasePlaylistLike = {
+  id: number | string
+  name: string
+  coverImgUrl?: string
+  picUrl?: string
+  description?: string
+  trackCount?: number
+  playCount?: number
+  updateFrequency?: string
 }
 
 function makeUrl(baseUrl: string, path: string, params: Record<string, string | number>) {
@@ -66,6 +106,32 @@ function mapSearchResult(song: NeteaseSongLike): SearchTrackResult {
     album: album?.name,
     coverUrl: album?.picUrl,
     duration: durationOf(song)
+  }
+}
+
+function mapNewSong(item: NonNullable<NeteaseNewSongResponse['result']>[number]): SearchTrackResult | null {
+  if (item.song) return mapSearchResult(item.song)
+  if (!item.id || !item.name) return null
+  return {
+    source: 'netease',
+    sourceId: String(item.id),
+    title: item.name,
+    artist: '',
+    coverUrl: item.picUrl,
+    duration: 0
+  }
+}
+
+function mapPlaylist(list: NeteasePlaylistLike): MusicList {
+  return {
+    source: 'netease',
+    sourceId: String(list.id),
+    title: list.name,
+    coverUrl: list.coverImgUrl ?? list.picUrl,
+    description: list.updateFrequency ?? list.description,
+    trackCount: list.trackCount,
+    playCount: list.playCount,
+    updateFrequency: list.updateFrequency
   }
 }
 
@@ -112,6 +178,41 @@ export class NeteaseProvider implements MusicProvider {
       makeUrl(this.baseUrl, '/search', { keywords: trimmed, type: 1, limit: 20 })
     )
     return (data.result?.songs ?? []).map(mapSearchResult)
+  }
+
+  async getDiscovery(): Promise<MusicDiscovery> {
+    const settled = await Promise.allSettled([
+      getJson<NeteaseNewSongResponse>(makeUrl(this.baseUrl, '/personalized/newsong', { limit: 18 })),
+      getJson<NeteasePlaylistResponse>(makeUrl(this.baseUrl, '/top/playlist', { limit: 12, cat: '全部' })),
+      getJson<NeteaseToplistResponse>(makeUrl(this.baseUrl, '/toplist/detail', {})),
+      getJson<NeteaseHotSearchResponse>(makeUrl(this.baseUrl, '/search/hot/detail', {}))
+    ])
+    if (settled.every((result) => result.status === 'rejected')) {
+      throw new Error('音乐服务未连接，请确认 NeteaseCloudMusicApi 正在运行。')
+    }
+
+    const newSongs =
+      settled[0].status === 'fulfilled' ? settled[0].value : ({ result: [] } satisfies NeteaseNewSongResponse)
+    const playlists =
+      settled[1].status === 'fulfilled' ? settled[1].value : ({ playlists: [] } satisfies NeteasePlaylistResponse)
+    const charts = settled[2].status === 'fulfilled' ? settled[2].value : ({ list: [] } satisfies NeteaseToplistResponse)
+    const hotSearches =
+      settled[3].status === 'fulfilled' ? settled[3].value : ({ data: [] } satisfies NeteaseHotSearchResponse)
+
+    return {
+      newSongs: (newSongs.result ?? []).map(mapNewSong).filter((song): song is SearchTrackResult => Boolean(song)),
+      playlists: (playlists.playlists ?? []).map(mapPlaylist),
+      charts: (charts.list ?? []).slice(0, 10).map(mapPlaylist),
+      hotSearches: (hotSearches.data ?? [])
+        .map((item) => item.searchWord)
+        .filter((word): word is string => Boolean(word))
+        .slice(0, 10)
+    }
+  }
+
+  async getPlaylistTracks(sourceId: string): Promise<SearchTrackResult[]> {
+    const data = await getJson<NeteasePlaylistDetailResponse>(makeUrl(this.baseUrl, '/playlist/detail', { id: sourceId }))
+    return (data.playlist?.tracks ?? []).map(mapSearchResult)
   }
 
   async getTrackDetail(sourceId: string): Promise<Track> {

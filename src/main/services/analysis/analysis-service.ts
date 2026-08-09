@@ -3,7 +3,7 @@ import { analysisRepository } from '../../storage/repositories/analysis.reposito
 import { trackRepository } from '../../storage/repositories/track.repository'
 import { createId } from '../../utils/ids'
 import { musicService } from '../music/music-service'
-import { piAgentService } from '../pi/pi-agent-service'
+import { aiService } from '../ai/ai-service'
 
 export class AnalysisService {
   async analyzeTrack(input: { trackId: string; userNote?: string }): Promise<SongAnalysis> {
@@ -15,7 +15,7 @@ export class AnalysisService {
       lyric = (await musicService.getLyric(track.id)) ?? undefined
     }
 
-    const output = await piAgentService.analyzeSong({
+    const output = await aiService.analyzeSong({
       title: track.title,
       artist: track.artist,
       album: track.album,

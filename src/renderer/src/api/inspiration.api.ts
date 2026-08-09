@@ -1,1 +1,3 @@
-export const inspirationApi = window.otodesk.inspiration
+import { otoApi } from './client'
+
+export const inspirationApi = otoApi.inspiration

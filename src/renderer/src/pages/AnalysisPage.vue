@@ -1,32 +1,32 @@
 <template>
-  <section class="mx-auto max-w-6xl px-8 py-10">
-    <header class="flex items-start justify-between gap-4">
+  <section class="ot-page">
+    <header class="ot-page-header">
       <div>
         <p class="ot-label">Analysis</p>
-        <h1 class="mt-2 text-3xl font-semibold text-ink">AI 歌曲分析</h1>
+        <h1 class="ot-page-title">歌曲分析</h1>
         <p v-if="music.currentTrack" class="mt-2 text-sm text-muted">
           {{ music.currentTrack.title }} · {{ music.currentTrack.artist }}
         </p>
       </div>
-      <button class="ot-button" @click="router.push('/listen')">选择歌曲</button>
+      <Button variant="outline" @click="router.push('/listen')">选择歌曲</Button>
     </header>
 
-    <div v-if="!music.currentTrack" class="ot-card mt-8 p-7 text-sm text-muted">
-      还没有选择歌曲。先到听歌页面搜索并选择一首歌。
-    </div>
+    <Card v-if="!music.currentTrack" class="p-7 text-sm text-muted">
+      未选择歌曲
+    </Card>
 
-    <div v-else class="mt-8 grid gap-5">
-      <div class="ot-card p-5">
+    <div v-else class="grid gap-5">
+      <Card class="p-5">
         <label class="ot-label" for="user-note">用户备注</label>
-        <textarea id="user-note" v-model="userNote" class="ot-input mt-2 min-h-24 w-full" placeholder="可选：告诉 AI 你想关注的情绪、风格或创作方向" />
+        <Textarea id="user-note" v-model="userNote" class="mt-2 min-h-24" placeholder="关注点，可选" />
         <div class="mt-4 flex gap-3">
-          <button class="ot-button-primary" :disabled="analysis.loading" @click="runAnalysis">
-            {{ analysis.loading ? '分析中...' : '开始分析' }}
-          </button>
-          <button class="ot-button" :disabled="!analysis.current" @click="goComposer">基于分析创作</button>
+          <Button :disabled="analysis.loading" @click="runAnalysis">
+            {{ analysis.loading ? '分析中' : '分析' }}
+          </Button>
+          <Button variant="outline" :disabled="!analysis.current" @click="goComposer">创作</Button>
         </div>
         <p v-if="analysis.error" class="mt-3 text-sm text-danger">{{ analysis.error }}</p>
-      </div>
+      </Card>
 
       <AnalysisSummaryCard :analysis="analysis.current" @save="saveInspiration" />
     </div>
@@ -36,6 +36,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
 import AnalysisSummaryCard from '../components/analysis/AnalysisSummaryCard.vue'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useMusicStore } from '../stores/music.store'

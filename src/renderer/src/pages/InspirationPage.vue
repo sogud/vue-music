@@ -1,18 +1,18 @@
 <template>
-  <section class="mx-auto max-w-6xl px-8 py-10">
-    <header class="flex items-start justify-between gap-4">
+  <section class="ot-page">
+    <header class="ot-page-header">
       <div>
         <p class="ot-label">Inspiration</p>
-        <h1 class="mt-2 text-3xl font-semibold text-ink">灵感库</h1>
+        <h1 class="ot-page-title">灵感</h1>
       </div>
-      <button class="ot-button" @click="inspirations.load">刷新</button>
+      <Button variant="outline" @click="inspirations.load">刷新</Button>
     </header>
 
-    <div v-if="inspirations.items.length === 0" class="ot-card mt-8 p-7 text-sm text-muted">
-      暂无灵感。可以从歌曲分析结果保存，也可以直接进入创作台。
-    </div>
+    <Card v-if="inspirations.items.length === 0" class="p-7 text-sm text-muted">
+      暂无灵感
+    </Card>
 
-    <div v-else class="mt-8 grid gap-4 md:grid-cols-2">
+    <div v-else class="grid gap-4 md:grid-cols-2">
       <InspirationCard
         v-for="item in inspirations.items"
         :key="item.id"
@@ -28,6 +28,8 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Inspiration } from '@shared/types'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import InspirationCard from '../components/inspiration/InspirationCard.vue'
 import { useInspirationStore } from '../stores/inspiration.store'
 

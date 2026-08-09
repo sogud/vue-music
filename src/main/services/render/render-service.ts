@@ -1,4 +1,4 @@
-import { shell } from 'electron'
+import { spawn } from 'node:child_process'
 import { renderRepository } from '../../storage/repositories/render.repository'
 import { createId } from '../../utils/ids'
 import { getProjectPaths } from '../../utils/paths'
@@ -31,8 +31,30 @@ export class RenderService {
 
   async openOutputFolder(projectId: string) {
     const project = projectService.requireProject(projectId)
-    await shell.openPath(getProjectPaths(project.id).dir)
+    await openPath(getProjectPaths(project.id).dir)
   }
 }
 
 export const renderService = new RenderService()
+
+function openPath(path: string) {
+  if (process.versions.electron) {
+    try {
+      const electron = require('electron') as { shell?: { openPath(path: string): Promise<string> } }
+      if (electron.shell) return electron.shell.openPath(path)
+    } catch {
+      // Fall through to platform command.
+    }
+  }
+
+  const command =
+    process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'explorer.exe' : 'xdg-open'
+  return new Promise<void>((resolve, reject) => {
+    const child = spawn(command, [path], { stdio: 'ignore', detached: true })
+    child.once('error', reject)
+    child.once('spawn', () => {
+      child.unref()
+      resolve()
+    })
+  })
+}

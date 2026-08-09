@@ -25,6 +25,11 @@ export const useProjectStore = defineStore('project', {
       this.current = await projectApi.get(id)
       return this.current
     },
+    async create(input: { title: string; description?: string; composition: Composition }) {
+      this.current = await projectApi.create(input)
+      await this.load()
+      return this.current
+    },
     async updateComposition(projectId: string, composition: Composition) {
       this.current = await projectApi.updateComposition(projectId, composition)
       await this.load()

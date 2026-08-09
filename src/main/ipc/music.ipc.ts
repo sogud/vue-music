@@ -11,6 +11,10 @@ const ResolveTrackSchema = z.object({
 
 export function registerMusicIpc() {
   ipcMain.handle('music:searchTracks', (_event, query) => musicService.searchTracks(QuerySchema.parse(query)))
+  ipcMain.handle('music:getDiscovery', () => musicService.getDiscovery())
+  ipcMain.handle('music:getPlaylistTracks', (_event, input) =>
+    musicService.getPlaylistTracks(ResolveTrackSchema.parse(input))
+  )
   ipcMain.handle('music:resolveTrack', (_event, input) => musicService.resolveTrack(ResolveTrackSchema.parse(input)))
   ipcMain.handle('music:getLyric', (_event, trackId) => musicService.getLyric(TrackIdSchema.parse(trackId)))
   ipcMain.handle('music:getPlayableUrl', (_event, trackId) => musicService.getPlayableUrl(TrackIdSchema.parse(trackId)))

@@ -1,9 +1,11 @@
-import { app } from 'electron'
 import { mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { migrateLegacyProjects } from './legacy-data'
+import { getUserDataPath } from './user-data'
 
 export function getProjectsRoot() {
-  const root = join(app.getPath('userData'), 'projects')
+  const root = join(getUserDataPath(), 'projects')
+  migrateLegacyProjects(root)
   mkdirSync(root, { recursive: true })
   return root
 }

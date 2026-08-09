@@ -9,6 +9,15 @@ export class MusicService {
     return this.netease.searchTracks(query)
   }
 
+  async getDiscovery() {
+    return this.netease.getDiscovery()
+  }
+
+  async getPlaylistTracks(input: { source: TrackSource; sourceId: string }) {
+    if (input.source !== 'netease') throw new Error(`Unsupported music source: ${input.source}`)
+    return this.netease.getPlaylistTracks(input.sourceId)
+  }
+
   async resolveTrack(input: { source: TrackSource; sourceId: string }): Promise<Track> {
     if (input.source !== 'netease') throw new Error(`Unsupported music source: ${input.source}`)
     const detail = await this.netease.getTrackDetail(input.sourceId)

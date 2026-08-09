@@ -1,1 +1,3 @@
-export const analysisApi = window.otodesk.analysis
+import { otoApi } from './client'
+
+export const analysisApi = otoApi.analysis

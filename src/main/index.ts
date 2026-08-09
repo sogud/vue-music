@@ -5,6 +5,8 @@ import { createMainWindow } from './window'
 
 let mainWindow: BrowserWindow | null = null
 
+app.setName('oto')
+
 app.whenReady().then(() => {
   initializeDatabase()
   registerAllIpcHandlers()

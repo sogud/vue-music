@@ -1,24 +1,22 @@
 import { access } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
-import { settingsService } from '../settings/settings-service'
-import { toolChecker } from './tool-checker'
+import { getFluidSynthSpawnEnv, toolChecker } from './tool-checker'
 import { summarizeStderr } from '../../utils/errors'
 
 export class FluidSynthRenderer {
   async render(midiPath: string, wavPath: string) {
     const status = await toolChecker.checkRenderer()
-    if (!status.fluidsynthAvailable) throw new Error('未找到 FluidSynth，请安装或在设置中配置路径。')
-    if (!status.soundFontConfigured || !status.soundFontPath) throw new Error('请先选择 .sf2 SoundFont 文件。')
+    if (!status.fluidsynthAvailable) throw new Error('未找到内置 FluidSynth，请重新安装 oto 或在设置中配置自定义路径。')
+    if (!status.soundFontConfigured || !status.soundFontPath) throw new Error('未找到内置 SoundFont，请重新安装 oto。')
 
     await access(status.soundFontPath)
-    const fluidsynthPath = settingsService.getFluidSynthPath()
-    await this.spawnFluidSynth(fluidsynthPath, ['-ni', '-T', 'wav', '-F', wavPath, status.soundFontPath, midiPath])
+    await this.spawnFluidSynth(status.fluidsynthPath!, ['-ni', '-T', 'wav', '-F', wavPath, status.soundFontPath, midiPath])
     return wavPath
   }
 
   private spawnFluidSynth(command: string, args: string[]) {
     return new Promise<void>((resolve, reject) => {
-      const child = spawn(command, args, { stdio: ['ignore', 'ignore', 'pipe'] })
+      const child = spawn(command, args, { stdio: ['ignore', 'ignore', 'pipe'], env: getFluidSynthSpawnEnv() })
       let stderr = ''
 
       child.stderr.on('data', (chunk) => {
